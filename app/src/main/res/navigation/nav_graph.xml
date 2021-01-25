@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/ScenarioSelectFragment"
+    >
+
+    <fragment
+        android:id="@+id/ScenarioSelectFragment"
+        android:name="com.okta.idx.android.scenario.ScenarioSelectFragment"
+        tools:layout="@layout/fragment_scenario_select"
+        >
+
+        <action
+            android:id="@+id/scenarioSelect_to_signIn"
+            app:destination="@id/SignInFragment"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true"
+            />
+
+        <action
+            android:id="@+id/scenarioSelect_to_dynamic"
+            app:destination="@id/DynamicFragment"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SignInFragment"
+        android:name="com.okta.idx.android.signin.SignInFragment"
+        tools:layout="@layout/fragment_sign_in"
+        >
+        <action
+            android:id="@+id/signIn_to_dashboard"
+            app:destination="@id/DashboardFragment"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+
+    <fragment
+        android:id="@+id/DynamicFragment"
+        android:name="com.okta.idx.android.dynamic.DynamicFragment"
+        tools:layout="@layout/fragment_dynamic"
+        >
+        <action
+            android:id="@+id/dynamic_to_dashboard"
+            app:destination="@id/DashboardFragment"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+
+    <fragment
+        android:id="@+id/DashboardFragment"
+        android:name="com.okta.idx.android.dashboard.DashboardFragment"
+        tools:layout="@layout/fragment_dashboard"
+        >
+        <action
+            android:id="@+id/dashboard_to_scenarioSelect"
+            app:destination="@id/ScenarioSelectFragment"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+</navigation>

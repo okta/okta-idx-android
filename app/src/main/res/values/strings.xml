@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Okta IDX Android</string>
+    <string name="username_password">Username Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="token_type">Token Type:</string>
+    <string name="expires_in">Expires In:</string>
+    <string name="access_token">Access Token:</string>
+    <string name="scope">Scope:</string>
+    <string name="id_token">Id Token:</string>
+    <string name="mfa_email">MFA Email</string>
+    <string name="email_code">Email Code</string>
+    <string name="submit">Submit</string>
+    <string name="enroll">Enroll</string>
+    <string name="cancel">Cancel</string>
+    <string name="okta_backend">Okta Backend</string>
+    <string name="mock_scenarios">Mock Scenarios</string>
+</resources>
