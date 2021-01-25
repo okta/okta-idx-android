@@ -38,7 +38,7 @@ internal class StepFactoryTest {
 
     private fun idxResponse(filename: String): IDXResponse {
         val inputStream =
-            StepFactoryTest::class.java.classLoader.getResourceAsStream("step_factory/$filename")
+            StepFactoryTest::class.java.classLoader!!.getResourceAsStream("step_factory/$filename")
         val buffer = Buffer()
         buffer.readFrom(inputStream)
 
