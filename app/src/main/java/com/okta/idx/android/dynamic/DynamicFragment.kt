@@ -44,7 +44,12 @@ internal class DynamicFragment : BaseFragment<FragmentDynamicBinding>(
                     binding.messagesContent.removeAllViews()
                     state.addMessageViews(binding.messagesContent)
                     binding.formContent.removeAllViews()
-                    binding.formContent.addView(state.displayableStep.createUi(binding.formContent))
+                    binding.formContent.addView(
+                        state.displayableStep.createUi(
+                            binding.formContent,
+                            viewLifecycleOwner,
+                            )
+                    )
                     binding.submitButton.visibility = View.VISIBLE
                     binding.cancelButton.visibility = View.VISIBLE
                 }

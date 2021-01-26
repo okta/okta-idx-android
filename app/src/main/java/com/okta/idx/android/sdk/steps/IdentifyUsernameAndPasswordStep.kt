@@ -17,8 +17,10 @@ package com.okta.idx.android.sdk.steps
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import com.okta.idx.android.databinding.StepIdentifyUsernameAndPasswordBinding
 import com.okta.idx.android.sdk.Step
 import com.okta.idx.android.sdk.StepFactory
@@ -94,6 +96,7 @@ class IdentifyUsernameAndPasswordViewFactory :
     ViewFactory<IdentifyUsernameAndPasswordStep.ViewModel> {
     override fun createUi(
         parent: ViewGroup,
+        viewLifecycleOwner: LifecycleOwner,
         viewModel: IdentifyUsernameAndPasswordStep.ViewModel
     ): View {
         val binding = parent.inflateBinding(StepIdentifyUsernameAndPasswordBinding::inflate)
@@ -103,7 +106,7 @@ class IdentifyUsernameAndPasswordViewFactory :
         binding.usernameEditText.doOnTextChanged { username ->
             viewModel.username = username
         }
-        viewModel.usernameErrorsLiveData.observeForever { errorMessage ->
+        viewModel.usernameErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
             binding.usernameTextInputLayout.error = errorMessage
         }
 
@@ -112,7 +115,7 @@ class IdentifyUsernameAndPasswordViewFactory :
         binding.passwordEditText.doOnTextChanged { password ->
             viewModel.password = password
         }
-        viewModel.passwordErrorsLiveData.observeForever { errorMessage ->
+        viewModel.passwordErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
             binding.passwordTextInputLayout.error = errorMessage
         }
 

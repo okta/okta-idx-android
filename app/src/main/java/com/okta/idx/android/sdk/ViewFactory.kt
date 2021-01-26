@@ -17,7 +17,8 @@ package com.okta.idx.android.sdk
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 
 interface ViewFactory<ViewModel> {
-    fun createUi(parent: ViewGroup, viewModel: ViewModel): View
+    fun createUi(parent: ViewGroup, viewLifecycleOwner: LifecycleOwner, viewModel: ViewModel): View
 }

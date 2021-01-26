@@ -17,12 +17,13 @@ package com.okta.idx.android.sdk
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 
 class DisplayableStep<ViewModel>(
     private val viewFactory: ViewFactory<ViewModel>,
     private val step: Step<ViewModel>,
 ) : Step<ViewModel> by step {
-    fun createUi(parent: ViewGroup): View {
-        return viewFactory.createUi(parent, step.viewModel)
+    fun createUi(parent: ViewGroup, viewLifecycleOwner: LifecycleOwner): View {
+        return viewFactory.createUi(parent, viewLifecycleOwner, step.viewModel)
     }
 }

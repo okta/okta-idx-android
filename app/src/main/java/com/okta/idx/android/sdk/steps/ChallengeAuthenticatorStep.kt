@@ -17,8 +17,10 @@ package com.okta.idx.android.sdk.steps
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import com.okta.idx.android.databinding.StepChallengeAuthenticatorBinding
 import com.okta.idx.android.sdk.Step
 import com.okta.idx.android.sdk.StepFactory
@@ -70,7 +72,11 @@ class ChallengeAuthenticatorStep private constructor(
 }
 
 class ChallengeAuthenticatorViewFactory : ViewFactory<ChallengeAuthenticatorStep.ViewModel> {
-    override fun createUi(parent: ViewGroup, viewModel: ChallengeAuthenticatorStep.ViewModel): View {
+    override fun createUi(
+        parent: ViewGroup,
+        viewLifecycleOwner: LifecycleOwner,
+        viewModel: ChallengeAuthenticatorStep.ViewModel
+    ): View {
         val binding = parent.inflateBinding(StepChallengeAuthenticatorBinding::inflate)
 
         binding.passcodeTextInputLayout.hint = viewModel.passcodeLabel
@@ -78,7 +84,7 @@ class ChallengeAuthenticatorViewFactory : ViewFactory<ChallengeAuthenticatorStep
         binding.passcodeEditText.doOnTextChanged { passcode ->
             viewModel.passcode = passcode
         }
-        viewModel.errorsLiveData.observeForever { errorMessage ->
+        viewModel.errorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
             binding.passcodeTextInputLayout.error = errorMessage
         }
 

@@ -19,8 +19,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import com.okta.idx.android.R
 import com.okta.idx.android.databinding.StepEnrollAuthenticatorBinding
 import com.okta.idx.android.databinding.StepEnrollAuthenticatorCustomBinding
@@ -181,7 +183,11 @@ class EnrollAuthenticatorStep private constructor(
 }
 
 class EnrollAuthenticatorViewFactory : ViewFactory<EnrollAuthenticatorStep.ViewModel> {
-    override fun createUi(parent: ViewGroup, viewModel: EnrollAuthenticatorStep.ViewModel): View {
+    override fun createUi(
+        parent: ViewGroup,
+        viewLifecycleOwner: LifecycleOwner,
+        viewModel: EnrollAuthenticatorStep.ViewModel
+    ): View {
         val binding = parent.inflateBinding(StepEnrollAuthenticatorBinding::inflate)
 
         for (option in viewModel.options) {
@@ -217,7 +223,7 @@ class EnrollAuthenticatorViewFactory : ViewFactory<EnrollAuthenticatorStep.ViewM
                         optionBinding.spinner.setSelection(option.questions.indexOf(it))
                     }
 
-                    option.questionErrorsLiveData.observeForever { errorMessage ->
+                    option.questionErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
                         optionBinding.errorTextView.text = errorMessage
                     }
                     optionBinding.root
@@ -230,7 +236,7 @@ class EnrollAuthenticatorViewFactory : ViewFactory<EnrollAuthenticatorStep.ViewM
                     optionBinding.editText.doOnTextChanged { question ->
                         option.question = question
                     }
-                    option.questionErrorsLiveData.observeForever { errorMessage ->
+                    option.questionErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
                         optionBinding.textInputLayout.error = errorMessage
                     }
                     optionBinding.root
@@ -264,7 +270,7 @@ class EnrollAuthenticatorViewFactory : ViewFactory<EnrollAuthenticatorStep.ViewM
             binding.radioGroup.check(selectedOption.viewId)
         }
 
-        viewModel.selectOptionErrorsLiveData.observeForever { errorMessage ->
+        viewModel.selectOptionErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
             binding.radioGroupErrorTextView.text = errorMessage
         }
 
@@ -273,7 +279,7 @@ class EnrollAuthenticatorViewFactory : ViewFactory<EnrollAuthenticatorStep.ViewM
             viewModel.answer = answer
         }
 
-        viewModel.answerErrorsLiveData.observeForever { errorMessage ->
+        viewModel.answerErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
             binding.answerTextInputLayout.error = errorMessage
         }
 

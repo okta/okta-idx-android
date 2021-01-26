@@ -18,8 +18,10 @@ package com.okta.idx.android.sdk.steps
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import com.okta.idx.android.R
 import com.okta.idx.android.databinding.StepSelectAuthenticatorBinding
 import com.okta.idx.android.databinding.StepSelectAuthenticatorItemBinding
@@ -189,7 +191,11 @@ class SelectAuthenticatorStep private constructor(
 }
 
 class SelectAuthenticatorViewFactory : ViewFactory<SelectAuthenticatorStep.ViewModel> {
-    override fun createUi(parent: ViewGroup, viewModel: SelectAuthenticatorStep.ViewModel): View {
+    override fun createUi(
+        parent: ViewGroup,
+        viewLifecycleOwner: LifecycleOwner,
+        viewModel: SelectAuthenticatorStep.ViewModel
+    ): View {
         val binding = parent.inflateBinding(StepSelectAuthenticatorBinding::inflate)
 
         for (option in viewModel.options) {
@@ -203,7 +209,7 @@ class SelectAuthenticatorViewFactory : ViewFactory<SelectAuthenticatorStep.ViewM
                 val methodBinding =
                     binding.radioGroup.inflateBinding(StepSelectAuthenticatorMethodBinding::inflate)
                 itemBinding.radioButton.setTag(R.id.nested_content, methodBinding.root)
-                option.method.errorsLiveData.observeForever { errorMessage ->
+                option.method.errorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
                     methodBinding.errorTextView.text = errorMessage
                 }
 
@@ -225,7 +231,7 @@ class SelectAuthenticatorViewFactory : ViewFactory<SelectAuthenticatorStep.ViewM
 
         binding.radioGroup.updateNestedVisibility(viewModel)
 
-        viewModel.errorsLiveData.observeForever { error ->
+        viewModel.errorsLiveData.observe(viewLifecycleOwner) { error ->
             binding.errorTextView.text = error
             binding.errorTextView.visibility = if (error.isEmpty()) View.GONE else View.VISIBLE
         }

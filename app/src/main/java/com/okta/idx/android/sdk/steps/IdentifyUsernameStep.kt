@@ -17,8 +17,10 @@ package com.okta.idx.android.sdk.steps
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import com.okta.idx.android.databinding.StepIdentifyUsernameBinding
 import com.okta.idx.android.sdk.Step
 import com.okta.idx.android.sdk.StepFactory
@@ -74,7 +76,11 @@ class IdentifyUsernameStep private constructor(
 }
 
 class IdentifyUsernameViewFactory : ViewFactory<IdentifyUsernameStep.ViewModel> {
-    override fun createUi(parent: ViewGroup, viewModel: IdentifyUsernameStep.ViewModel): View {
+    override fun createUi(
+        parent: ViewGroup,
+        viewLifecycleOwner: LifecycleOwner,
+        viewModel: IdentifyUsernameStep.ViewModel
+    ): View {
         val binding = parent.inflateBinding(StepIdentifyUsernameBinding::inflate)
 
         binding.usernameTextInputLayout.hint = viewModel.usernameLabel
@@ -82,7 +88,7 @@ class IdentifyUsernameViewFactory : ViewFactory<IdentifyUsernameStep.ViewModel> 
         binding.usernameEditText.doOnTextChanged { username ->
             viewModel.username = username
         }
-        viewModel.usernameErrorsLiveData.observeForever { errorMessage ->
+        viewModel.usernameErrorsLiveData.observe(viewLifecycleOwner) { errorMessage ->
             binding.usernameTextInputLayout.error = errorMessage
         }
 
