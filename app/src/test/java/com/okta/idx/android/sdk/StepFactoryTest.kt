@@ -174,31 +174,4 @@ internal class StepFactoryTest {
             assertThat(step.viewModel).isNotNull()
         }
     }
-
-    @Test fun `select-enroll-profile_returnsStep`() {
-        assertFactoryReturnsNonNull(
-            "select-enroll-profile.json",
-            SelectEnrollProfileStep.Factory()
-        ) { step ->
-            assertThat(step.viewModel).isNotNull()
-        }
-    }
-
-    @Test fun `select-identify_returnsStep`() {
-        assertFactoryReturnsNonNull(
-            "select-identify.json",
-            SelectEnrollProfileStep.Factory()
-        ) { step ->
-            assertThat(step.viewModel).isNotNull()
-        }
-    }
-
-    @Test fun `enroll-profile_returnsStep`() {
-        assertFactoryReturnsNonNull(
-            "enroll-profile.json",
-            SelectEnrollProfileStep.Factory()
-        ) { step ->
-            assertThat(step.viewModel).isNotNull()
-        }
-    }
 }
