@@ -31,8 +31,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class IdentifyUsernameStep private constructor(
-    override val viewModel: ViewModel,
-) : Step<IdentifyUsernameStep.ViewModel> {
+    val viewModel: ViewModel,
+) : Step {
     class Factory : StepFactory<IdentifyUsernameStep> {
         override fun get(remediationOption: RemediationOption): IdentifyUsernameStep? {
             if (remediationOption.name == "identify") {

@@ -64,7 +64,7 @@ internal class DynamicViewModel : ViewModel() {
         }
     }
 
-    fun signIn(form: State.Form, step: Step<*>) {
+    fun signIn(form: State.Form, step: Step) {
         callIdxClient(form) {
             step.proceed(form.stepState)
         }

@@ -33,7 +33,7 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 object IdxViewRegistry {
-    private class FactoryWrapper<S : Step<*>>(
+    private class FactoryWrapper<S : Step>(
         val stepFactory: StepFactory<S>,
         val viewFactory: ViewFactory<S>,
     ) {
@@ -61,7 +61,7 @@ object IdxViewRegistry {
         register(EnrollProfileStep.Factory(), EnrollProfileViewFactory())
     }
 
-    fun <S : Step<*>> register(
+    fun <S : Step> register(
         stepFactory: StepFactory<S>,
         viewFactory: ViewFactory<S>,
     ) {

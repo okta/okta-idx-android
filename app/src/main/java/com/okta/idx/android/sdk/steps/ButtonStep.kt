@@ -11,8 +11,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class ButtonStep private constructor(
-    override val viewModel: ViewModel,
-) : Step<ButtonStep.ViewModel> {
+    val viewModel: ViewModel,
+) : Step {
     class Factory : StepFactory<ButtonStep> {
         override fun get(remediationOption: RemediationOption): ButtonStep? {
             return when (remediationOption.name) {

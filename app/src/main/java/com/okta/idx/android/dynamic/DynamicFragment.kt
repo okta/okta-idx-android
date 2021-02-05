@@ -136,7 +136,7 @@ internal class DynamicFragment : BaseFragment<FragmentDynamicBinding>(
         parent.addView(binding.root)
     }
 
-    override fun proceed(step: Step<*>) {
+    override fun proceed(step: Step) {
         val form = viewModel.stateLiveData.value as DynamicViewModel.State.Form
         if (step.isValid()) {
             viewModel.signIn(form, step)

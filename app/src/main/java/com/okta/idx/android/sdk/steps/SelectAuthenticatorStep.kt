@@ -38,8 +38,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class SelectAuthenticatorStep private constructor(
-    override val viewModel: ViewModel,
-) : Step<SelectAuthenticatorStep.ViewModel> {
+    val viewModel: ViewModel,
+) : Step {
     class Factory : StepFactory<SelectAuthenticatorStep> {
         override fun get(remediationOption: RemediationOption): SelectAuthenticatorStep? {
             if (remediationOption.name == "select-authenticator-authenticate") {

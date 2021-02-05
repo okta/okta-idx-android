@@ -19,9 +19,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 
-interface ViewFactory<S : Step<*>> {
+interface ViewFactory<S : Step> {
     interface Callback {
-        fun proceed(step: Step<*>)
+        fun proceed(step: Step)
     }
 
     data class References internal constructor(

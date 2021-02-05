@@ -17,7 +17,7 @@ package com.okta.idx.android.sdk
 
 import android.view.View
 
-class DisplayableStep<S : Step<*>> internal constructor(
+class DisplayableStep<S : Step> internal constructor(
     private val viewFactory: ViewFactory<S>,
     val step: S,
 ) {

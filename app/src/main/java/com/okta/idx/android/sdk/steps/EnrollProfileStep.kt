@@ -19,8 +19,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class EnrollProfileStep private constructor(
-    override val viewModel: ViewModel,
-) : Step<EnrollProfileStep.ViewModel> {
+    val viewModel: ViewModel,
+) : Step {
     class Factory : StepFactory<EnrollProfileStep> {
         override fun get(remediationOption: RemediationOption): EnrollProfileStep? {
             if (remediationOption.name == "enroll-profile") {

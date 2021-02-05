@@ -32,8 +32,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class ChallengeAuthenticatorStep private constructor(
-    override val viewModel: ViewModel,
-) : Step<ChallengeAuthenticatorStep.ViewModel> {
+    val viewModel: ViewModel,
+) : Step {
     class Factory : StepFactory<ChallengeAuthenticatorStep> {
         override fun get(remediationOption: RemediationOption): ChallengeAuthenticatorStep? {
             if (remediationOption.name == "challenge-authenticator") {

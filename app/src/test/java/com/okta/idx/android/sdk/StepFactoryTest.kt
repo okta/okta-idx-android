@@ -48,7 +48,7 @@ internal class StepFactoryTest {
         return objectMapper.convertValue(responseJsonNode, IDXResponse::class.java)
     }
 
-    private fun <T : Step<*>> assertFactoryReturnsNonNull(
+    private fun <T : Step> assertFactoryReturnsNonNull(
         filename: String,
         factory: StepFactory<T>,
         stepAssertionCallback: (step: T) -> Unit,

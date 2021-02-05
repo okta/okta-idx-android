@@ -32,8 +32,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class IdentifyUsernameAndPasswordStep private constructor(
-    override val viewModel: ViewModel,
-) : Step<IdentifyUsernameAndPasswordStep.ViewModel> {
+    val viewModel: ViewModel,
+) : Step {
     class Factory : StepFactory<IdentifyUsernameAndPasswordStep> {
         override fun get(remediationOption: RemediationOption): IdentifyUsernameAndPasswordStep? {
             if (remediationOption.name == "identify") {

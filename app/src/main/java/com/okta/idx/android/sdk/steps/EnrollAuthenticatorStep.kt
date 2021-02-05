@@ -45,8 +45,8 @@ import com.okta.idx.sdk.api.model.RemediationOption
 import com.okta.idx.sdk.api.response.IDXResponse
 
 class EnrollAuthenticatorStep private constructor(
-    override val viewModel: ViewModel
-) : Step<EnrollAuthenticatorStep.ViewModel> {
+    val viewModel: ViewModel
+) : Step {
     class Factory : StepFactory<EnrollAuthenticatorStep> {
         override fun get(remediationOption: RemediationOption): EnrollAuthenticatorStep? {
             if (remediationOption.name == "enroll-authenticator") {
