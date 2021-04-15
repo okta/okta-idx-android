@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android
+package com.okta.idx.android.directauth.sdk.util
 
-import com.okta.idx.sdk.api.response.TokenResponse
+import androidx.lifecycle.MutableLiveData
 
-internal object TokenViewModel {
-    lateinit var tokenResponse: TokenResponse
+internal fun MutableLiveData<String>.emitValidation(
+    errorText: String = "Field is required.",
+    validationFunction: () -> Boolean,
+): Boolean {
+    val isValid = validationFunction()
+    value = if (isValid) {
+        ""
+    } else {
+        errorText
+    }
+    return isValid
 }

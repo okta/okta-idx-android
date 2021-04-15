@@ -17,7 +17,6 @@ package com.okta.idx.android.dashboard
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.okta.idx.android.TokenViewModel
 import com.okta.idx.android.databinding.FragmentDashboardBinding
@@ -26,17 +25,17 @@ import com.okta.idx.android.util.BaseFragment
 internal class DashboardFragment : BaseFragment<FragmentDashboardBinding>(
     FragmentDashboardBinding::inflate
 ) {
-    private val viewModel by activityViewModels<TokenViewModel>()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.tokenType.text = viewModel.tokenResponse.tokenType
-        binding.expiresIn.text = viewModel.tokenResponse.expiresIn.toString()
-        binding.accessToken.text = viewModel.tokenResponse.accessToken
-        binding.idToken.text = viewModel.tokenResponse.idToken
-        binding.scope.text = viewModel.tokenResponse.scope
+        binding.tokenType.text = TokenViewModel.tokenResponse.tokenType
+        binding.expiresIn.text = TokenViewModel.tokenResponse.expiresIn.toString()
+        binding.accessToken.text = TokenViewModel.tokenResponse.accessToken
+        binding.idToken.text = TokenViewModel.tokenResponse.idToken
+        binding.scope.text = TokenViewModel.tokenResponse.scope
 
         binding.signOutButton.setOnClickListener {
-            findNavController().navigate(DashboardFragmentDirections.dashboardToScenarioSelect())
+            // TODO:
+//            Network.idxClient().revokeToken(TokenType.ACCESS_TOKEN.toString(), TokenViewModel.tokenResponse.accessToken)
+            findNavController().navigate(DashboardFragmentDirections.dashboardToLogin())
         }
     }
 }
