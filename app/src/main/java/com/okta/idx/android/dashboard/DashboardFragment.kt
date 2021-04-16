@@ -17,6 +17,8 @@ package com.okta.idx.android.dashboard
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.okta.idx.android.TokenViewModel
 import com.okta.idx.android.databinding.FragmentDashboardBinding
@@ -25,6 +27,8 @@ import com.okta.idx.android.util.BaseFragment
 internal class DashboardFragment : BaseFragment<FragmentDashboardBinding>(
     FragmentDashboardBinding::inflate
 ) {
+    private val viewModel: DashboardViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.tokenType.text = TokenViewModel.tokenResponse.tokenType
         binding.expiresIn.text = TokenViewModel.tokenResponse.expiresIn.toString()
@@ -33,9 +37,26 @@ internal class DashboardFragment : BaseFragment<FragmentDashboardBinding>(
         binding.scope.text = TokenViewModel.tokenResponse.scope
 
         binding.signOutButton.setOnClickListener {
-            // TODO:
-//            Network.idxClient().revokeToken(TokenType.ACCESS_TOKEN.toString(), TokenViewModel.tokenResponse.accessToken)
-            findNavController().navigate(DashboardFragmentDirections.dashboardToLogin())
+            viewModel.logout()
+        }
+
+        viewModel.logoutStateLiveData.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                DashboardViewModel.LogoutState.Failed -> {
+                    binding.signOutButton.isEnabled = true
+                    Toast.makeText(requireContext(), "Logout failed.", Toast.LENGTH_LONG).show()
+                }
+                DashboardViewModel.LogoutState.Idle -> {
+                    binding.signOutButton.isEnabled = true
+                }
+                DashboardViewModel.LogoutState.Loading -> {
+                    binding.signOutButton.isEnabled = false
+                }
+                DashboardViewModel.LogoutState.Success -> {
+                    viewModel.acknowledgeLogoutSuccess()
+                    findNavController().navigate(DashboardFragmentDirections.dashboardToLogin())
+                }
+            }
         }
     }
 }
