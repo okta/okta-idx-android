@@ -18,5 +18,9 @@ package com.okta.idx.android
 import com.okta.idx.sdk.api.response.TokenResponse
 
 internal object TokenViewModel {
-    lateinit var tokenResponse: TokenResponse
+    var _tokenResponse: TokenResponse? = null
+    val tokenResponse: TokenResponse
+        get() {
+            return _tokenResponse!!
+        }
 }

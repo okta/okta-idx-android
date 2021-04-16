@@ -59,7 +59,7 @@ internal class DirectAuthFragment : BaseFragment<FragmentDirectAuthBinding>(
                     addLoadingView()
                 }
                 is FormAction.State.Success -> {
-                    TokenViewModel.tokenResponse = state.tokenResponse
+                    TokenViewModel._tokenResponse = state.tokenResponse
                     findNavController().navigate(DirectAuthFragmentDirections.directAuthToDashboard())
                 }
                 is FormAction.State.FailedToLoad -> {

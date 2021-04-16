@@ -19,10 +19,21 @@ internal class DashboardViewModel : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                Network.idxClient().revokeToken(
-                    TokenType.ACCESS_TOKEN.toString(),
-                    TokenViewModel.tokenResponse.accessToken
-                )
+                if (TokenViewModel.tokenResponse.refreshToken != null) {
+                    // Revoking the refresh token revokes both!
+                    Network.idxClient().revokeToken(
+                        TokenType.REFRESH_TOKEN.toString(),
+                        TokenViewModel.tokenResponse.refreshToken
+                    )
+                } else {
+                    Network.idxClient().revokeToken(
+                        TokenType.ACCESS_TOKEN.toString(),
+                        TokenViewModel.tokenResponse.accessToken
+                    )
+                }
+
+                TokenViewModel._tokenResponse = null
+
                 _logoutStateLiveData.postValue(LogoutState.Success)
             } catch (e: Exception) {
                 _logoutStateLiveData.postValue(LogoutState.Failed)
