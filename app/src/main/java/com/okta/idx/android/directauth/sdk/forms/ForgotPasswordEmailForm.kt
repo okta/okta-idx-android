@@ -15,51 +15,45 @@
  */
 package com.okta.idx.android.directauth.sdk.forms
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.okta.idx.android.directauth.sdk.Form
 import com.okta.idx.android.directauth.sdk.FormAction
-import com.okta.idx.android.directauth.sdk.models.AuthenticatorType
+import com.okta.idx.android.directauth.sdk.util.emitValidation
 import com.okta.idx.sdk.api.model.IDXClientContext
+import com.okta.idx.sdk.api.model.VerifyAuthenticatorOptions
 import com.okta.idx.sdk.api.wrapper.AuthenticationWrapper
 
-class RegisterSelectAuthenticatorForm internal constructor(
+class ForgotPasswordEmailForm internal constructor(
     val viewModel: ViewModel,
     private val formAction: FormAction,
 ) : Form {
     class ViewModel internal constructor(
-        val options: List<AuthenticatorType>,
+        var code: String = "",
         internal val idxClientContext: IDXClientContext,
-    )
+    ) {
+        private val _codeErrorsLiveData = MutableLiveData("")
+        val codeErrorsLiveData: LiveData<String> = _codeErrorsLiveData
 
-    fun register(type: AuthenticatorType) {
+        fun isValid(): Boolean {
+            return _codeErrorsLiveData.emitValidation { code.isNotEmpty() }
+        }
+    }
+
+    fun verify() {
+        if (!viewModel.isValid()) return
+
         formAction.proceed {
-            val response = AuthenticationWrapper.enrollAuthenticator(
+            val authenticatorOptions = VerifyAuthenticatorOptions().apply {
+                code = viewModel.code
+            }
+            val response = AuthenticationWrapper.verifyAuthenticator(
                 idxClient,
                 viewModel.idxClientContext,
-                type.authenticatorTypeText
+                authenticatorOptions,
             )
             handleKnownTransitions(response)?.let { return@proceed it }
-
-            when (type) {
-                AuthenticatorType.EMAIL -> {
-                    FormAction.ProceedTransition.FormTransition(
-                        RegisterEmailForm(
-                            RegisterEmailForm.ViewModel(idxClientContext = response.idxClientContext),
-                            formAction
-                        )
-                    )
-                }
-                AuthenticatorType.PASSWORD -> {
-                    FormAction.ProceedTransition.FormTransition(
-                        RegisterPasswordForm(
-                            RegisterPasswordForm.ViewModel(idxClientContext = response.idxClientContext),
-                            formAction
-                        )
-                    )
-                }
-                AuthenticatorType.SMS -> {
-                    TODO()
-                }
-            }
+            forgotPasswordSelectAuthenticatorForm(response, formAction)
         }
     }
 

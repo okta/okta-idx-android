@@ -15,11 +15,19 @@
  */
 package com.okta.idx.android.directauth.sdk
 
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordEmailForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordResetForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterEmailForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
+import com.okta.idx.android.directauth.sdk.viewFactories.ForgotPasswordEmailFormViewFactory
+import com.okta.idx.android.directauth.sdk.viewFactories.ForgotPasswordFormViewFactory
+import com.okta.idx.android.directauth.sdk.viewFactories.ForgotPasswordResetFormViewFactory
+import com.okta.idx.android.directauth.sdk.viewFactories.ForgotPasswordSelectAuthenticatorFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.RegisterEmailFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.RegisterFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.RegisterPasswordFormViewFactory
@@ -38,6 +46,13 @@ object IdxFormRegistry {
         )
         register(RegisterEmailForm::class.java, RegisterEmailFormViewFactory())
         register(RegisterPasswordForm::class.java, RegisterPasswordFormViewFactory())
+        register(ForgotPasswordForm::class.java, ForgotPasswordFormViewFactory())
+        register(
+            ForgotPasswordSelectAuthenticatorForm::class.java,
+            ForgotPasswordSelectAuthenticatorFormViewFactory()
+        )
+        register(ForgotPasswordEmailForm::class.java, ForgotPasswordEmailFormViewFactory())
+        register(ForgotPasswordResetForm::class.java, ForgotPasswordResetFormViewFactory())
     }
 
     fun <F : Form> register(

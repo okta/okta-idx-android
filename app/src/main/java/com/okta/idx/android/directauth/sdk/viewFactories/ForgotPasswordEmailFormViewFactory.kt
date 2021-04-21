@@ -16,40 +16,28 @@
 package com.okta.idx.android.directauth.sdk.viewFactories
 
 import android.view.View
-import com.okta.idx.android.databinding.FormRegisterPasswordBinding
+import com.okta.idx.android.databinding.FormForgotPasswordEmailBinding
 import com.okta.idx.android.directauth.sdk.FormViewFactory
-import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordEmailForm
 import com.okta.idx.android.directauth.sdk.util.bindText
 import com.okta.idx.android.directauth.sdk.util.inflateBinding
 
-internal class RegisterPasswordFormViewFactory :
-    FormViewFactory<RegisterPasswordForm> {
+internal class ForgotPasswordEmailFormViewFactory :
+    FormViewFactory<ForgotPasswordEmailForm> {
     override fun createUi(
         references: FormViewFactory.References,
-        form: RegisterPasswordForm
+        form: ForgotPasswordEmailForm
     ): View {
-        val binding = references.parent.inflateBinding(FormRegisterPasswordBinding::inflate)
+        val binding =
+            references.parent.inflateBinding(FormForgotPasswordEmailBinding::inflate)
 
         bindText(
-            editText = binding.passwordEditText,
-            textInputLayout = binding.passwordInputLayout,
-            valueField = form.viewModel::password,
-            errorsLiveData = form.viewModel.passwordErrorsLiveData,
+            editText = binding.emailCodeEditText,
+            textInputLayout = binding.emailCodeInputLayout,
+            valueField = form.viewModel::code,
+            errorsLiveData = form.viewModel.codeErrorsLiveData,
             references = references
         )
-
-        bindText(
-            editText = binding.confirmedPasswordEditText,
-            textInputLayout = binding.confirmedPasswordInputLayout,
-            valueField = form.viewModel::confirmedPassword,
-            errorsLiveData = form.viewModel.confirmedPasswordErrorsLiveData,
-            references = references
-        )
-
-        form.viewModel.passwordsMatchErrorsLiveData.observe(references.viewLifecycleOwner) { error ->
-            binding.errorTextView.text = error
-            binding.errorTextView.visibility = if (error.isEmpty()) View.GONE else View.VISIBLE
-        }
 
         binding.submitButton.setOnClickListener {
             form.verify()

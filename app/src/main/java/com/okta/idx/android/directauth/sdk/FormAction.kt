@@ -16,10 +16,14 @@
 package com.okta.idx.android.directauth.sdk
 
 import androidx.lifecycle.MutableLiveData
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordResetForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
+import com.okta.idx.android.directauth.sdk.models.AuthenticatorType
 import com.okta.idx.sdk.api.client.IDXClient
 import com.okta.idx.sdk.api.exception.ProcessingException
+import com.okta.idx.sdk.api.model.AuthenticationStatus
 import com.okta.idx.sdk.api.model.IDXClientContext
 import com.okta.idx.sdk.api.response.AuthenticationResponse
 import com.okta.idx.sdk.api.response.TokenResponse
@@ -81,11 +85,14 @@ data class FormAction internal constructor(
                 AuthenticationWrapper.populateAuthenticatorUIOptions(idxClient, idxClientContext)
                     .map { uiOption ->
                         when (uiOption.type) {
-                            RegisterSelectAuthenticatorForm.RegisterType.EMAIL.authenticatorType -> {
-                                RegisterSelectAuthenticatorForm.RegisterType.EMAIL
+                            AuthenticatorType.EMAIL.authenticatorTypeText -> {
+                                AuthenticatorType.EMAIL
                             }
-                            RegisterSelectAuthenticatorForm.RegisterType.PASSWORD.authenticatorType -> {
-                                RegisterSelectAuthenticatorForm.RegisterType.PASSWORD
+                            AuthenticatorType.PASSWORD.authenticatorTypeText -> {
+                                AuthenticatorType.PASSWORD
+                            }
+                            AuthenticatorType.SMS.authenticatorTypeText -> {
+                                AuthenticatorType.SMS
                             }
                             else -> throw IllegalArgumentException("Unsupported option: ${uiOption.type}")
                         }
@@ -94,6 +101,48 @@ data class FormAction internal constructor(
             return ProceedTransition.FormTransition(
                 RegisterSelectAuthenticatorForm(
                     RegisterSelectAuthenticatorForm.ViewModel(options, idxClientContext),
+                    formAction
+                )
+            )
+        }
+
+        fun forgotPasswordSelectAuthenticatorForm(
+            previousResponse: AuthenticationResponse,
+            formAction: FormAction
+        ): ProceedTransition {
+            if (AuthenticationWrapper.isSkipAuthenticatorPresent(idxClient, previousResponse.idxClientContext)) {
+                val response =
+                    AuthenticationWrapper.skipAuthenticatorEnrollment(idxClient, previousResponse.idxClientContext)
+                handleKnownTransitions(response)?.let { return@forgotPasswordSelectAuthenticatorForm it }
+            }
+
+            if (previousResponse.authenticationStatus == AuthenticationStatus.AWAITING_PASSWORD_RESET) {
+                return ProceedTransition.FormTransition(
+                    ForgotPasswordResetForm(viewModel = ForgotPasswordResetForm.ViewModel(
+                        idxClientContext = previousResponse.idxClientContext),
+                        formAction = formAction
+                    )
+                )
+            }
+
+            val options = AuthenticationWrapper.populateForgotPasswordAuthenticatorUIOptions(
+                idxClient,
+                previousResponse.idxClientContext
+            ).map { uiOption ->
+                when (uiOption.type) {
+                    AuthenticatorType.EMAIL.authenticatorTypeText -> {
+                        AuthenticatorType.EMAIL
+                    }
+                    AuthenticatorType.SMS.authenticatorTypeText -> {
+                        AuthenticatorType.SMS
+                    }
+                    else -> throw IllegalArgumentException("Unsupported option: ${uiOption.type}")
+                }
+            }
+
+            return ProceedTransition.FormTransition(
+                ForgotPasswordSelectAuthenticatorForm(
+                    ForgotPasswordSelectAuthenticatorForm.ViewModel(options, previousResponse.idxClientContext),
                     formAction
                 )
             )

@@ -17,21 +17,21 @@ package com.okta.idx.android.directauth.sdk.viewFactories
 
 import android.view.View
 import android.view.ViewGroup
-import com.okta.idx.android.databinding.FormRegisterSelectAuthenticatorBinding
+import com.okta.idx.android.databinding.FormForgotPasswordSelectAuthenticatorBinding
 import com.okta.idx.android.databinding.RowFactorBinding
 import com.okta.idx.android.directauth.sdk.FormViewFactory
-import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.models.AuthenticatorType
 import com.okta.idx.android.directauth.sdk.util.inflateBinding
 
-internal class RegisterSelectAuthenticatorFormViewFactory :
-    FormViewFactory<RegisterSelectAuthenticatorForm> {
+internal class ForgotPasswordSelectAuthenticatorFormViewFactory :
+    FormViewFactory<ForgotPasswordSelectAuthenticatorForm> {
     override fun createUi(
         references: FormViewFactory.References,
-        form: RegisterSelectAuthenticatorForm
+        form: ForgotPasswordSelectAuthenticatorForm
     ): View {
         val binding =
-            references.parent.inflateBinding(FormRegisterSelectAuthenticatorBinding::inflate)
+            references.parent.inflateBinding(FormForgotPasswordSelectAuthenticatorBinding::inflate)
 
         for (option in form.viewModel.options) {
             binding.root.addView(option.createView(binding.root, form), binding.root.childCount - 1)
@@ -46,12 +46,12 @@ internal class RegisterSelectAuthenticatorFormViewFactory :
 
     private fun AuthenticatorType.createView(
         parent: ViewGroup,
-        form: RegisterSelectAuthenticatorForm
+        form: ForgotPasswordSelectAuthenticatorForm
     ): View {
         val binding = parent.inflateBinding(RowFactorBinding::inflate)
         binding.typeTextView.text = toString()
         binding.selectButton.setOnClickListener {
-            form.register(this)
+            form.forgotPassword(this)
         }
         return binding.root
     }

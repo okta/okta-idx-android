@@ -42,11 +42,11 @@ class RegisterForm internal constructor(
         val primaryEmailErrorsLiveData: LiveData<String> = _primaryEmailErrorsLiveData
 
         fun isValid(): Boolean {
-            val usernameValid = _lastNameErrorsLiveData.emitValidation { lastName.isNotEmpty() }
-            val passwordValid = _firstNameErrorsLiveData.emitValidation { firstName.isNotEmpty() }
+            val lastNameValid = _lastNameErrorsLiveData.emitValidation { lastName.isNotEmpty() }
+            val firstNameValid = _firstNameErrorsLiveData.emitValidation { firstName.isNotEmpty() }
             val primaryEmailValid =
                 _primaryEmailErrorsLiveData.emitValidation { primaryEmail.isNotEmpty() }
-            return usernameValid && passwordValid && primaryEmailValid
+            return lastNameValid && firstNameValid && primaryEmailValid
         }
     }
 

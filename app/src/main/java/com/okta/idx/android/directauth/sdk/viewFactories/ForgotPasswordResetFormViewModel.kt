@@ -16,45 +16,43 @@
 package com.okta.idx.android.directauth.sdk.viewFactories
 
 import android.view.View
-import com.okta.idx.android.databinding.FormRegisterBinding
+import com.okta.idx.android.databinding.FormForgotPasswordResetBinding
 import com.okta.idx.android.directauth.sdk.FormViewFactory
-import com.okta.idx.android.directauth.sdk.forms.RegisterForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordResetForm
 import com.okta.idx.android.directauth.sdk.util.bindText
 import com.okta.idx.android.directauth.sdk.util.inflateBinding
 
-internal class RegisterFormViewFactory : FormViewFactory<RegisterForm> {
+internal class ForgotPasswordResetFormViewFactory :
+    FormViewFactory<ForgotPasswordResetForm> {
     override fun createUi(
         references: FormViewFactory.References,
-        form: RegisterForm
+        form: ForgotPasswordResetForm
     ): View {
-        val binding = references.parent.inflateBinding(FormRegisterBinding::inflate)
+        val binding = references.parent.inflateBinding(FormForgotPasswordResetBinding::inflate)
 
         bindText(
-            editText = binding.lastNameEditText,
-            textInputLayout = binding.lastNameTextInputLayout,
-            valueField = form.viewModel::lastName,
-            errorsLiveData = form.viewModel.lastNameErrorsLiveData,
+            editText = binding.passwordEditText,
+            textInputLayout = binding.passwordInputLayout,
+            valueField = form.viewModel::password,
+            errorsLiveData = form.viewModel.passwordErrorsLiveData,
             references = references
         )
 
         bindText(
-            editText = binding.firstNameEditText,
-            textInputLayout = binding.firstNameTextInputLayout,
-            valueField = form.viewModel::firstName,
-            errorsLiveData = form.viewModel.firstNameErrorsLiveData,
+            editText = binding.confirmedPasswordEditText,
+            textInputLayout = binding.confirmedPasswordInputLayout,
+            valueField = form.viewModel::confirmedPassword,
+            errorsLiveData = form.viewModel.confirmedPasswordErrorsLiveData,
             references = references
         )
 
-        bindText(
-            editText = binding.primaryEmailEditText,
-            textInputLayout = binding.primaryEmailTextInputLayout,
-            valueField = form.viewModel::primaryEmail,
-            errorsLiveData = form.viewModel.primaryEmailErrorsLiveData,
-            references = references
-        )
+        form.viewModel.passwordsMatchErrorsLiveData.observe(references.viewLifecycleOwner) { error ->
+            binding.errorTextView.text = error
+            binding.errorTextView.visibility = if (error.isEmpty()) View.GONE else View.VISIBLE
+        }
 
-        binding.registerButton.setOnClickListener {
-            form.register()
+        binding.submitButton.setOnClickListener {
+            form.verify()
         }
 
         binding.signOutButton.setOnClickListener {

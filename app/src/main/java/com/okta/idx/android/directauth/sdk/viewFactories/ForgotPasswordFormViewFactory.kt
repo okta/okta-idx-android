@@ -16,31 +16,31 @@
 package com.okta.idx.android.directauth.sdk.viewFactories
 
 import android.view.View
-import com.okta.idx.android.databinding.FormRegisterEmailBinding
+import com.okta.idx.android.databinding.FormForgotPasswordBinding
 import com.okta.idx.android.directauth.sdk.FormViewFactory
-import com.okta.idx.android.directauth.sdk.forms.RegisterEmailForm
+import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordForm
 import com.okta.idx.android.directauth.sdk.util.bindText
 import com.okta.idx.android.directauth.sdk.util.inflateBinding
 
-internal class RegisterEmailFormViewFactory :
-    FormViewFactory<RegisterEmailForm> {
+internal class ForgotPasswordFormViewFactory :
+    FormViewFactory<ForgotPasswordForm> {
     override fun createUi(
         references: FormViewFactory.References,
-        form: RegisterEmailForm
+        form: ForgotPasswordForm
     ): View {
         val binding =
-            references.parent.inflateBinding(FormRegisterEmailBinding::inflate)
+            references.parent.inflateBinding(FormForgotPasswordBinding::inflate)
 
         bindText(
-            editText = binding.emailCodeEditText,
-            textInputLayout = binding.emailCodeInputLayout,
-            valueField = form.viewModel::code,
-            errorsLiveData = form.viewModel.codeErrorsLiveData,
+            editText = binding.usernameEditText,
+            textInputLayout = binding.usernameTextInputLayout,
+            valueField = form.viewModel::username,
+            errorsLiveData = form.viewModel.usernameErrorsLiveData,
             references = references
         )
 
-        binding.submitButton.setOnClickListener {
-            form.verify()
+        binding.forgotPasswordButton.setOnClickListener {
+            form.forgotPassword()
         }
 
         binding.signOutButton.setOnClickListener {

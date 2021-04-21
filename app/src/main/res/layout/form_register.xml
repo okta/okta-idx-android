@@ -64,10 +64,10 @@
         />
 
     <Button
-        android:id="@+id/already_have_an_account_button"
+        android:id="@+id/sign_out_button"
         style="@style/BorderlessButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/already_have_an_account"
+        android:text="@string/sign_out"
         />
 </LinearLayout>

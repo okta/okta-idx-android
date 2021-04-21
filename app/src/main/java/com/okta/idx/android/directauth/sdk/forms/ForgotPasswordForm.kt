@@ -20,50 +20,36 @@ import androidx.lifecycle.MutableLiveData
 import com.okta.idx.android.directauth.sdk.Form
 import com.okta.idx.android.directauth.sdk.FormAction
 import com.okta.idx.android.directauth.sdk.util.emitValidation
-import com.okta.idx.sdk.api.model.AuthenticationOptions
 import com.okta.idx.sdk.api.wrapper.AuthenticationWrapper
 
-class UsernamePasswordForm internal constructor(
+class ForgotPasswordForm internal constructor(
     val viewModel: ViewModel = ViewModel(),
-    private val formAction: FormAction
+    private val formAction: FormAction,
 ) : Form {
     class ViewModel internal constructor(
         var username: String = "",
-        var password: String = ""
     ) {
         private val _usernameErrorsLiveData = MutableLiveData("")
         val usernameErrorsLiveData: LiveData<String> = _usernameErrorsLiveData
 
-        private val _passwordErrorsLiveData = MutableLiveData("")
-        val passwordErrorsLiveData: LiveData<String> = _passwordErrorsLiveData
-
         fun isValid(): Boolean {
-            val usernameValid = _usernameErrorsLiveData.emitValidation { username.isNotEmpty() }
-            val passwordValid = _passwordErrorsLiveData.emitValidation { password.isNotEmpty() }
-            return usernameValid && passwordValid
+            return _usernameErrorsLiveData.emitValidation { username.isNotEmpty() }
         }
-    }
-
-    fun signIn() {
-        if (!viewModel.isValid()) return
-
-        formAction.proceed {
-            val options = AuthenticationOptions(viewModel.username, viewModel.password)
-            val response = AuthenticationWrapper.authenticate(idxClient, options)
-            handleKnownTransitions(response)?.let { return@proceed it }
-            TODO("Ensure policy is properly set up.")
-        }
-    }
-
-    fun register() {
-        formAction.transitionToForm(RegisterForm(formAction = formAction))
     }
 
     fun forgotPassword() {
-        formAction.transitionToForm(
-            ForgotPasswordForm(
-                formAction = formAction,
-            )
-        )
+        if (!viewModel.isValid()) return
+
+        formAction.proceed {
+            val response =
+                AuthenticationWrapper.recoverPassword(idxClient, viewModel.username)
+            handleKnownTransitions(response)?.let { return@proceed it }
+
+            forgotPasswordSelectAuthenticatorForm(response, formAction)
+        }
+    }
+
+    fun signOut() {
+        formAction.signOut()
     }
 }
