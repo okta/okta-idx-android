@@ -11,6 +11,7 @@
 This repository contains a sample Android application which can be used a reference for using 
 [Okta IDX Java][okta-idx-java-github] on Android. 
 
+
 > :grey_exclamation: The use of this project requires you to be a part of our limited general availability (LGA) program with access to Okta Identity Engine. If you want to request to be a part of our LGA program for Okta Identity Engine, please reach out to your account manager. If you do not have an account manager, please reach out to oie@okta.com for more information.
 
 ## Need help?
