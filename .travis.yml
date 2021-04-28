@@ -19,6 +19,7 @@ before_install:
   - ls
   - git clone https://github.com/okta/okta-idx-java.git
   - cd okta-idx-java
+  - git checkout okta-idx-java-root-0.1.0-beta.5
   - mvn install
   - cd -
 before_cache:
