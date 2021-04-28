@@ -19,8 +19,7 @@ before_install:
   - git clone https://github.com/okta/okta-idx-java.git
   - cd okta-idx-java
   - mvn install
-  - cd
-  - ls
+  - cd okta-idx-android
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
