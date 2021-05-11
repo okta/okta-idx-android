@@ -17,7 +17,6 @@ package com.okta.idx.android.directauth.sdk
 
 import androidx.lifecycle.MutableLiveData
 import com.okta.idx.android.directauth.sdk.forms.VerifyCodeForm
-import com.okta.idx.android.directauth.sdk.forms.PasswordResetForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPhoneForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
@@ -84,10 +83,10 @@ data class FormAction internal constructor(
 
             return when (response.authenticationStatus) {
                 AuthenticationStatus.AWAITING_PASSWORD_RESET -> {
-                    passwordResetForm(response)
+                    registerPasswordForm(response)
                 }
                 AuthenticationStatus.PASSWORD_EXPIRED -> {
-                    passwordResetForm(response)
+                    registerPasswordForm(response)
                 }
                 AuthenticationStatus.AWAITING_AUTHENTICATOR_SELECTION -> {
                     authenticateSelectAuthenticatorForm(response)
@@ -181,12 +180,7 @@ data class FormAction internal constructor(
                     )
                 }
                 "password" -> {
-                    ProceedTransition.FormTransition(
-                        RegisterPasswordForm(
-                            RegisterPasswordForm.ViewModel(proceedContext = response.proceedContext),
-                            formAction
-                        )
-                    )
+                    registerPasswordForm(response)
                 }
                 "sms" -> {
                     ProceedTransition.FormTransition(
@@ -214,13 +208,11 @@ data class FormAction internal constructor(
             }
         }
 
-        private fun passwordResetForm(response: AuthenticationResponse): ProceedTransition {
+        private fun registerPasswordForm(response: AuthenticationResponse): ProceedTransition {
             return ProceedTransition.FormTransition(
-                PasswordResetForm(
-                    viewModel = PasswordResetForm.ViewModel(
-                        proceedContext = response.proceedContext
-                    ),
-                    formAction = formAction,
+                RegisterPasswordForm(
+                    RegisterPasswordForm.ViewModel(proceedContext = response.proceedContext),
+                    formAction
                 )
             )
         }
