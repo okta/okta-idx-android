@@ -69,7 +69,7 @@ internal class SelectAuthenticatorFormViewFactory :
         val binding = parent.inflateBinding(RowFactorBinding::inflate)
         binding.typeTextView.text = label
         binding.selectButton.setOnClickListener {
-            form.authenticate(this)
+            form.select(this)
         }
         return binding.root
     }

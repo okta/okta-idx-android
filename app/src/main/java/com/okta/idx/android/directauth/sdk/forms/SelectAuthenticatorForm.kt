@@ -30,7 +30,7 @@ class SelectAuthenticatorForm internal constructor(
         internal val proceedContext: ProceedContext,
     )
 
-    fun authenticate(authenticator: Authenticator) {
+    fun select(authenticator: Authenticator) {
         formAction.proceed {
             val response = authenticationWrapper.selectAuthenticator(
                 viewModel.proceedContext,
