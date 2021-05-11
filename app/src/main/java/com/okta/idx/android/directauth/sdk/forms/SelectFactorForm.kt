@@ -20,30 +20,24 @@ import com.okta.idx.android.directauth.sdk.FormAction
 import com.okta.idx.sdk.api.client.Authenticator
 import com.okta.idx.sdk.api.client.ProceedContext
 
-class ForgotPasswordSelectAuthenticatorForm internal constructor(
+class SelectFactorForm internal constructor(
     val viewModel: ViewModel,
     private val formAction: FormAction,
 ) : Form {
     class ViewModel internal constructor(
-        val authenticators: List<Authenticator>,
+        val factors: List<Authenticator.Factor>,
         val canSkip: Boolean,
         internal val proceedContext: ProceedContext,
     )
 
-    fun forgotPassword(factor: Authenticator.Factor) {
+    fun select(factor: Authenticator.Factor) {
         formAction.proceed {
-            val response = authenticationWrapper.selectAuthenticator(
+            val response = authenticationWrapper.selectFactor(
                 viewModel.proceedContext,
                 factor
             )
             handleKnownTransitions(response)?.let { return@proceed it }
-
-            FormAction.ProceedTransition.FormTransition(
-                ForgotPasswordVerifyCodeForm(
-                    ForgotPasswordVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
-                    formAction
-                )
-            )
+            unsupportedPolicy()
         }
     }
 

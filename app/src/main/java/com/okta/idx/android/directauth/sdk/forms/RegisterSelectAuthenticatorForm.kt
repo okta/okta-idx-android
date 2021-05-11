@@ -30,55 +30,14 @@ class RegisterSelectAuthenticatorForm internal constructor(
         internal val proceedContext: ProceedContext,
     )
 
-    fun register(factor: Authenticator.Factor) {
+    fun register(authenticator: Authenticator) {
         formAction.proceed {
             val response = authenticationWrapper.enrollAuthenticator(
                 viewModel.proceedContext,
-                factor
+                authenticator
             )
             handleKnownTransitions(response)?.let { return@proceed it }
-
-            when (factor.method) {
-                "email" -> {
-                    FormAction.ProceedTransition.FormTransition(
-                        RegisterVerifyCodeForm(
-                            RegisterVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
-                            formAction
-                        )
-                    )
-                }
-                "password" -> {
-                    FormAction.ProceedTransition.FormTransition(
-                        RegisterPasswordForm(
-                            RegisterPasswordForm.ViewModel(proceedContext = response.proceedContext),
-                            formAction
-                        )
-                    )
-                }
-                "sms" -> {
-                    FormAction.ProceedTransition.FormTransition(
-                        RegisterPhoneForm(
-                            RegisterPhoneForm.ViewModel(
-                                proceedContext = response.proceedContext,
-                                factor = factor
-                            ),
-                            formAction
-                        )
-                    )
-                }
-                "voice" -> {
-                    FormAction.ProceedTransition.FormTransition(
-                        RegisterPhoneForm(
-                            RegisterPhoneForm.ViewModel(
-                                proceedContext = response.proceedContext,
-                                factor = factor
-                            ),
-                            formAction
-                        )
-                    )
-                }
-                else -> unsupportedPolicy()
-            }
+            unsupportedPolicy()
         }
     }
 

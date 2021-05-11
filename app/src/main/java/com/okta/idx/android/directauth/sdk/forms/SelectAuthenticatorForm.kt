@@ -30,20 +30,14 @@ class SelectAuthenticatorForm internal constructor(
         internal val proceedContext: ProceedContext,
     )
 
-    fun authenticate(factor: Authenticator.Factor) {
+    fun authenticate(authenticator: Authenticator) {
         formAction.proceed {
             val response = authenticationWrapper.selectAuthenticator(
                 viewModel.proceedContext,
-                factor
+                authenticator
             )
-            handleTerminalTransitions(response)?.let { return@proceed it }
-
-            FormAction.ProceedTransition.FormTransition(
-                AuthenticateVerifyCodeForm(
-                    AuthenticateVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
-                    formAction
-                )
-            )
+            handleKnownTransitions(response)?.let { return@proceed it }
+            unsupportedPolicy()
         }
     }
 

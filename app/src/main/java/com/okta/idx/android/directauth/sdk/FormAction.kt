@@ -16,10 +16,14 @@
 package com.okta.idx.android.directauth.sdk
 
 import androidx.lifecycle.MutableLiveData
-import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordSelectAuthenticatorForm
+import com.okta.idx.android.directauth.sdk.forms.AuthenticateVerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.PasswordResetForm
+import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
+import com.okta.idx.android.directauth.sdk.forms.RegisterPhoneForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
+import com.okta.idx.android.directauth.sdk.forms.RegisterVerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.SelectAuthenticatorForm
+import com.okta.idx.android.directauth.sdk.forms.SelectFactorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
 import com.okta.idx.sdk.api.client.Authenticator
 import com.okta.idx.sdk.api.client.IDXAuthenticationWrapper
@@ -79,20 +83,30 @@ data class FormAction internal constructor(
         fun handleKnownTransitions(response: AuthenticationResponse): ProceedTransition? {
             handleTerminalTransitions(response)?.let { return it }
 
-            if (response.authenticationStatus == AuthenticationStatus.PASSWORD_EXPIRED) {
-                return ProceedTransition.FormTransition(
-                    PasswordResetForm(
-                        viewModel = PasswordResetForm.ViewModel(
-                            proceedContext = response.proceedContext
-                        ),
-                        formAction = formAction,
-                    )
-                )
+            return when (response.authenticationStatus) {
+                AuthenticationStatus.AWAITING_PASSWORD_RESET -> {
+                    passwordResetForm(response)
+                }
+                AuthenticationStatus.PASSWORD_EXPIRED -> {
+                    passwordResetForm(response)
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_SELECTION -> {
+                    authenticateSelectAuthenticatorForm(response)
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT -> {
+                    registerVerifyForm(response)
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT_DATA -> {
+                    handleEnrollmentData(response)
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_VERIFICATION -> {
+                    verifyForm(response)
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_VERIFICATION_DATA -> {
+                    handleVerificationData(response)
+                }
+                else -> null
             }
-            if (response.authenticationStatus == AuthenticationStatus.AWAITING_AUTHENTICATOR_SELECTION) {
-                return authenticateSelectAuthenticatorForm(response)
-            }
-            return null
         }
 
         fun registerSelectAuthenticatorForm(
@@ -108,36 +122,6 @@ data class FormAction internal constructor(
                         authenticators,
                         canSkip,
                         proceedContext
-                    ),
-                    formAction
-                )
-            )
-        }
-
-        fun forgotPasswordSelectAuthenticatorForm(
-            previousResponse: AuthenticationResponse,
-            formAction: FormAction
-        ): ProceedTransition {
-            if (previousResponse.authenticationStatus == AuthenticationStatus.AWAITING_PASSWORD_RESET) {
-                return ProceedTransition.FormTransition(
-                    PasswordResetForm(
-                        viewModel = PasswordResetForm.ViewModel(
-                            proceedContext = previousResponse.proceedContext
-                        ),
-                        formAction = formAction
-                    )
-                )
-            }
-
-            val canSkip =
-                authenticationWrapper.isSkipAuthenticatorPresent(previousResponse.proceedContext)
-
-            return ProceedTransition.FormTransition(
-                ForgotPasswordSelectAuthenticatorForm(
-                    ForgotPasswordSelectAuthenticatorForm.ViewModel(
-                        previousResponse.authenticators,
-                        canSkip,
-                        previousResponse.proceedContext
                     ),
                     formAction
                 )
@@ -160,6 +144,101 @@ data class FormAction internal constructor(
                     formAction
                 )
             )
+        }
+
+        private fun handleEnrollmentData(response: AuthenticationResponse): ProceedTransition {
+            return if (response.currentAuthenticatorMethods.size == 1) {
+                registerVerifyForm(response)
+            } else {
+                selectFactorForm(response)
+            }
+        }
+
+        private fun selectFactorForm(response: AuthenticationResponse): ProceedTransition {
+            val factors = response.authenticators.first().factors
+            val canSkip = authenticationWrapper.isSkipAuthenticatorPresent(response.proceedContext)
+            return ProceedTransition.FormTransition(
+                SelectFactorForm(
+                    viewModel = SelectFactorForm.ViewModel(
+                        factors = factors,
+                        canSkip = canSkip,
+                        proceedContext = response.proceedContext,
+                    ),
+                    formAction = formAction,
+                )
+            )
+        }
+
+        private fun registerVerifyForm(response: AuthenticationResponse): ProceedTransition {
+            return when (response.currentAuthenticatorMethods.first()) {
+                "email" -> {
+                    ProceedTransition.FormTransition(
+                        RegisterVerifyCodeForm(
+                            RegisterVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
+                            formAction
+                        )
+                    )
+                }
+                "password" -> {
+                    ProceedTransition.FormTransition(
+                        RegisterPasswordForm(
+                            RegisterPasswordForm.ViewModel(proceedContext = response.proceedContext),
+                            formAction
+                        )
+                    )
+                }
+                "sms" -> {
+                    ProceedTransition.FormTransition(
+                        RegisterPhoneForm(
+                            RegisterPhoneForm.ViewModel(
+                                proceedContext = response.proceedContext,
+                                factor = response.authenticators.first().factors.first()
+                            ),
+                            formAction
+                        )
+                    )
+                }
+                "voice" -> {
+                    ProceedTransition.FormTransition(
+                        RegisterPhoneForm(
+                            RegisterPhoneForm.ViewModel(
+                                proceedContext = response.proceedContext,
+                                factor = response.authenticators.first().factors.first()
+                            ),
+                            formAction
+                        )
+                    )
+                }
+                else -> unsupportedPolicy()
+            }
+        }
+
+        private fun passwordResetForm(response: AuthenticationResponse): ProceedTransition {
+            return ProceedTransition.FormTransition(
+                PasswordResetForm(
+                    viewModel = PasswordResetForm.ViewModel(
+                        proceedContext = response.proceedContext
+                    ),
+                    formAction = formAction,
+                )
+            )
+        }
+
+        private fun verifyForm(response: AuthenticationResponse): ProceedTransition {
+            return ProceedTransition.FormTransition(
+                AuthenticateVerifyCodeForm(
+                    AuthenticateVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
+                    formAction
+                )
+            )
+        }
+
+        private fun handleVerificationData(response: AuthenticationResponse): ProceedTransition {
+            return if (response.currentAuthenticatorMethods.size == 1) {
+                verifyForm(response)
+            } else {
+                selectFactorForm(response)
+            }
         }
 
         fun unsupportedPolicy(): ProceedTransition {

@@ -44,7 +44,7 @@ class ForgotPasswordForm internal constructor(
                 authenticationWrapper.recoverPassword(viewModel.username)
             handleTerminalTransitions(response)?.let { return@proceed it }
 
-            forgotPasswordSelectAuthenticatorForm(response, formAction)
+            authenticateSelectAuthenticatorForm(response)
         }
     }
 

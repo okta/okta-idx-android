@@ -23,6 +23,7 @@ import com.okta.idx.android.directauth.sdk.util.emitValidation
 import com.okta.idx.sdk.api.client.ProceedContext
 import com.okta.idx.sdk.api.model.VerifyAuthenticatorOptions
 
+// TODO: Can these be combined?
 class AuthenticateVerifyCodeForm internal constructor(
     val viewModel: ViewModel,
     private val formAction: FormAction,

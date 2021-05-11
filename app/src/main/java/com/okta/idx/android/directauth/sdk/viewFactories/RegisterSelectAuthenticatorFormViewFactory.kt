@@ -34,9 +34,7 @@ internal class RegisterSelectAuthenticatorFormViewFactory :
             references.parent.inflateBinding(FormRegisterSelectAuthenticatorBinding::inflate)
 
         for (authenticator in form.viewModel.authenticators) {
-            for (factor in authenticator.factors) {
-                binding.root.addView(factor.createView(binding.root, form), binding.root.childCount - 2)
-            }
+            binding.root.addView(authenticator.createView(binding.root, form), binding.root.childCount - 2)
         }
 
         binding.skipButton.visibility = if (form.viewModel.canSkip) View.VISIBLE else View.GONE
@@ -51,12 +49,12 @@ internal class RegisterSelectAuthenticatorFormViewFactory :
         return binding.root
     }
 
-    private fun Authenticator.Factor.createView(
+    private fun Authenticator.createView(
         parent: ViewGroup,
         form: RegisterSelectAuthenticatorForm
     ): View {
         val binding = parent.inflateBinding(RowFactorBinding::inflate)
-        binding.typeTextView.text = method
+        binding.typeTextView.text = label
         binding.selectButton.setOnClickListener {
             form.register(this)
         }

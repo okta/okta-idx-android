@@ -47,7 +47,7 @@ class RegisterVerifyCodeForm internal constructor(
                 viewModel.proceedContext,
                 VerifyAuthenticatorOptions(viewModel.code),
             )
-            handleKnownTransitions(response)?.let { return@proceed it }
+            handleTerminalTransitions(response)?.let { return@proceed it }
             registerSelectAuthenticatorForm(response.authenticators, response.proceedContext, formAction)
         }
     }
