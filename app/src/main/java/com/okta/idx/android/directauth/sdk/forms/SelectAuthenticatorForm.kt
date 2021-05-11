@@ -36,8 +36,7 @@ class SelectAuthenticatorForm internal constructor(
                 viewModel.proceedContext,
                 authenticator
             )
-            handleKnownTransitions(response)?.let { return@proceed it }
-            unsupportedPolicy()
+            handleKnownTransitions(response)
         }
     }
 

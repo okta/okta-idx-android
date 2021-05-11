@@ -47,8 +47,7 @@ class VerifyCodeForm internal constructor(
                 viewModel.proceedContext,
                 VerifyAuthenticatorOptions(viewModel.code),
             )
-            handleKnownTransitions(response)?.let { return@proceed it }
-            unsupportedPolicy()
+            handleKnownTransitions(response)
         }
     }
 

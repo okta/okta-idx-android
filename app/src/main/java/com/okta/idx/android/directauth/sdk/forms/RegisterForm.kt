@@ -63,8 +63,7 @@ class RegisterForm internal constructor(
             val proceedContext = newUserRegistrationResponse.proceedContext
 
             val response = authenticationWrapper.register(proceedContext, userProfile)
-            handleKnownTransitions(response)?.let { return@proceed it }
-            unsupportedPolicy()
+            handleKnownTransitions(response)
         }
     }
 

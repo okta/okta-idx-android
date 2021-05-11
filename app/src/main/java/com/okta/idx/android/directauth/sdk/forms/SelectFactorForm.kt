@@ -36,8 +36,7 @@ class SelectFactorForm internal constructor(
                 viewModel.proceedContext,
                 factor
             )
-            handleKnownTransitions(response)?.let { return@proceed it }
-            unsupportedPolicy()
+            handleKnownTransitions(response)
         }
     }
 

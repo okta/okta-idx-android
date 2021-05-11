@@ -19,11 +19,9 @@ import androidx.lifecycle.MutableLiveData
 import com.okta.idx.android.directauth.sdk.forms.VerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPhoneForm
-import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.SelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.SelectFactorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
-import com.okta.idx.sdk.api.client.Authenticator
 import com.okta.idx.sdk.api.client.IDXAuthenticationWrapper
 import com.okta.idx.sdk.api.client.ProceedContext
 import com.okta.idx.sdk.api.exception.ProcessingException
@@ -78,7 +76,7 @@ data class FormAction internal constructor(
             return null
         }
 
-        fun handleKnownTransitions(response: AuthenticationResponse): ProceedTransition? {
+        fun handleKnownTransitions(response: AuthenticationResponse): ProceedTransition {
             handleTerminalTransitions(response)?.let { return it }
 
             return when (response.authenticationStatus) {
@@ -104,28 +102,10 @@ data class FormAction internal constructor(
                     handleVerificationData(response)
                 }
                 AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT_SELECTION -> {
-                    registerSelectAuthenticatorForm(response.authenticators, response.proceedContext)
+                    authenticateSelectAuthenticatorForm(response)
                 }
-                else -> null
+                else -> unsupportedPolicy()
             }
-        }
-
-        private fun registerSelectAuthenticatorForm(
-            authenticators: List<Authenticator>,
-            proceedContext: ProceedContext,
-        ): ProceedTransition {
-            val canSkip = authenticationWrapper.isSkipAuthenticatorPresent(proceedContext)
-
-            return ProceedTransition.FormTransition(
-                RegisterSelectAuthenticatorForm(
-                    RegisterSelectAuthenticatorForm.ViewModel(
-                        authenticators,
-                        canSkip,
-                        proceedContext
-                    ),
-                    formAction
-                )
-            )
         }
 
         private fun authenticateSelectAuthenticatorForm(
