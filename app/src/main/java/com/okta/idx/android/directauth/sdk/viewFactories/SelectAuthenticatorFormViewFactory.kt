@@ -30,10 +30,9 @@ internal class SelectAuthenticatorFormViewFactory :
         references: FormViewFactory.References,
         form: SelectAuthenticatorForm
     ): View {
-        val binding =
-            references.parent.inflateBinding(FormSelectAuthenticatorBinding::inflate)
+        val binding = references.parent.inflateBinding(FormSelectAuthenticatorBinding::inflate)
 
-        for (authenticator in form.viewModel.authenticators) {
+        for (authenticator in form.viewModel.authenticators.filterToSupported()) {
             binding.root.addView(authenticator.createView(binding.root, form), binding.root.childCount - 2)
         }
 
@@ -47,6 +46,20 @@ internal class SelectAuthenticatorFormViewFactory :
         }
 
         return binding.root
+    }
+
+    private fun List<Authenticator>.filterToSupported(): List<Authenticator> {
+        val supported = setOf("sms", "voice", "password", "email")
+        val result = mutableListOf<Authenticator>()
+        for (authenticator in this) {
+            for (factor in authenticator.factors) {
+                if (supported.contains(factor.method)) {
+                    result += authenticator
+                    break
+                }
+            }
+        }
+        return result
     }
 
     private fun Authenticator.createView(

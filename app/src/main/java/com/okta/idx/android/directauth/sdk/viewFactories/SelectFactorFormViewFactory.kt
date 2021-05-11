@@ -30,8 +30,7 @@ internal class SelectFactorFormViewFactory :
         references: FormViewFactory.References,
         form: SelectFactorForm
     ): View {
-        val binding =
-            references.parent.inflateBinding(FormSelectFactorBinding::inflate)
+        val binding = references.parent.inflateBinding(FormSelectFactorBinding::inflate)
 
         for (factor in form.viewModel.factors) {
             binding.root.addView(factor.createView(binding.root, form), binding.root.childCount - 2)

@@ -214,7 +214,7 @@ data class FormAction internal constructor(
             }
         }
 
-        fun unsupportedPolicy(): ProceedTransition {
+        private fun unsupportedPolicy(): ProceedTransition {
             return ProceedTransition.TerminalTransition(listOf("Unsupported policy"))
         }
 
@@ -285,8 +285,7 @@ data class FormAction internal constructor(
     fun skip(proceedContext: ProceedContext) {
         proceed {
             val response = authenticationWrapper.skipAuthenticatorEnrollment(proceedContext)
-            handleKnownTransitions(response)?.let { return@proceed it }
-            unsupportedPolicy()
+            handleKnownTransitions(response)
         }
     }
 

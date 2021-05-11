@@ -28,8 +28,7 @@ internal class VerifyCodeFormViewFactory :
         references: FormViewFactory.References,
         form: VerifyCodeForm
     ): View {
-        val binding =
-            references.parent.inflateBinding(FormVerifyCodeBinding::inflate)
+        val binding = references.parent.inflateBinding(FormVerifyCodeBinding::inflate)
 
         bindText(
             editText = binding.codeEditText,
