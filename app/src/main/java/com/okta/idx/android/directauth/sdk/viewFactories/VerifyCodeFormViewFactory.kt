@@ -16,20 +16,20 @@
 package com.okta.idx.android.directauth.sdk.viewFactories
 
 import android.view.View
-import com.okta.idx.android.databinding.FormAuthenticateVerifyCodeBinding
+import com.okta.idx.android.databinding.FormVerifyCodeBinding
 import com.okta.idx.android.directauth.sdk.FormViewFactory
-import com.okta.idx.android.directauth.sdk.forms.AuthenticateVerifyCodeForm
+import com.okta.idx.android.directauth.sdk.forms.VerifyCodeForm
 import com.okta.idx.android.directauth.sdk.util.bindText
 import com.okta.idx.android.directauth.sdk.util.inflateBinding
 
-internal class AuthenticateVerifyCodeFormViewFactory :
-    FormViewFactory<AuthenticateVerifyCodeForm> {
+internal class VerifyCodeFormViewFactory :
+    FormViewFactory<VerifyCodeForm> {
     override fun createUi(
         references: FormViewFactory.References,
-        form: AuthenticateVerifyCodeForm
+        form: VerifyCodeForm
     ): View {
         val binding =
-            references.parent.inflateBinding(FormAuthenticateVerifyCodeBinding::inflate)
+            references.parent.inflateBinding(FormVerifyCodeBinding::inflate)
 
         bindText(
             editText = binding.codeEditText,

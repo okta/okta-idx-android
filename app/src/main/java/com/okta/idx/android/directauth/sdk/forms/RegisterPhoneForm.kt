@@ -51,8 +51,8 @@ class RegisterPhoneForm internal constructor(
             )
             handleTerminalTransitions(response)?.let { return@proceed it }
             FormAction.ProceedTransition.FormTransition(
-                RegisterVerifyCodeForm(
-                    viewModel = RegisterVerifyCodeForm.ViewModel(
+                VerifyCodeForm(
+                    viewModel = VerifyCodeForm.ViewModel(
                         proceedContext = response.proceedContext
                     ),
                     formAction = formAction

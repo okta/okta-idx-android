@@ -63,7 +63,7 @@ class PasswordResetForm internal constructor(
                 options,
             )
             handleKnownTransitions(response)?.let { return@proceed it }
-            authenticateSelectAuthenticatorForm(response)
+            unsupportedPolicy()
         }
     }
 

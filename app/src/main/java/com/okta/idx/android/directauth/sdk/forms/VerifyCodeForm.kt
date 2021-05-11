@@ -23,7 +23,7 @@ import com.okta.idx.android.directauth.sdk.util.emitValidation
 import com.okta.idx.sdk.api.client.ProceedContext
 import com.okta.idx.sdk.api.model.VerifyAuthenticatorOptions
 
-class RegisterVerifyCodeForm internal constructor(
+class VerifyCodeForm internal constructor(
     val viewModel: ViewModel,
     private val formAction: FormAction,
 ) : Form {
@@ -47,8 +47,8 @@ class RegisterVerifyCodeForm internal constructor(
                 viewModel.proceedContext,
                 VerifyAuthenticatorOptions(viewModel.code),
             )
-            handleTerminalTransitions(response)?.let { return@proceed it }
-            registerSelectAuthenticatorForm(response.authenticators, response.proceedContext, formAction)
+            handleKnownTransitions(response)?.let { return@proceed it }
+            unsupportedPolicy()
         }
     }
 

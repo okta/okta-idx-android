@@ -16,12 +16,11 @@
 package com.okta.idx.android.directauth.sdk
 
 import androidx.lifecycle.MutableLiveData
-import com.okta.idx.android.directauth.sdk.forms.AuthenticateVerifyCodeForm
+import com.okta.idx.android.directauth.sdk.forms.VerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.PasswordResetForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPhoneForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
-import com.okta.idx.android.directauth.sdk.forms.RegisterVerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.SelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.SelectFactorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
@@ -105,14 +104,16 @@ data class FormAction internal constructor(
                 AuthenticationStatus.AWAITING_AUTHENTICATOR_VERIFICATION_DATA -> {
                     handleVerificationData(response)
                 }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT_SELECTION -> {
+                    registerSelectAuthenticatorForm(response.authenticators, response.proceedContext)
+                }
                 else -> null
             }
         }
 
-        fun registerSelectAuthenticatorForm(
+        private fun registerSelectAuthenticatorForm(
             authenticators: List<Authenticator>,
             proceedContext: ProceedContext,
-            formAction: FormAction
         ): ProceedTransition {
             val canSkip = authenticationWrapper.isSkipAuthenticatorPresent(proceedContext)
 
@@ -128,7 +129,7 @@ data class FormAction internal constructor(
             )
         }
 
-        fun authenticateSelectAuthenticatorForm(
+        private fun authenticateSelectAuthenticatorForm(
             previousResponse: AuthenticationResponse
         ): ProceedTransition {
             val canSkip =
@@ -173,8 +174,8 @@ data class FormAction internal constructor(
             return when (response.currentAuthenticatorMethods.first()) {
                 "email" -> {
                     ProceedTransition.FormTransition(
-                        RegisterVerifyCodeForm(
-                            RegisterVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
+                        VerifyCodeForm(
+                            VerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
                             formAction
                         )
                     )
@@ -226,8 +227,8 @@ data class FormAction internal constructor(
 
         private fun verifyForm(response: AuthenticationResponse): ProceedTransition {
             return ProceedTransition.FormTransition(
-                AuthenticateVerifyCodeForm(
-                    AuthenticateVerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
+                VerifyCodeForm(
+                    VerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
                     formAction
                 )
             )

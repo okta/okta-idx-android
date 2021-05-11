@@ -15,10 +15,9 @@
  */
 package com.okta.idx.android.directauth.sdk
 
-import com.okta.idx.android.directauth.sdk.forms.AuthenticateVerifyCodeForm
+import com.okta.idx.android.directauth.sdk.forms.VerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.ForgotPasswordForm
 import com.okta.idx.android.directauth.sdk.forms.PasswordResetForm
-import com.okta.idx.android.directauth.sdk.forms.RegisterVerifyCodeForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPasswordForm
 import com.okta.idx.android.directauth.sdk.forms.RegisterPhoneForm
@@ -26,10 +25,9 @@ import com.okta.idx.android.directauth.sdk.forms.RegisterSelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.SelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.SelectFactorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
-import com.okta.idx.android.directauth.sdk.viewFactories.AuthenticateVerifyCodeFormViewFactory
+import com.okta.idx.android.directauth.sdk.viewFactories.VerifyCodeFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.ForgotPasswordFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.PasswordResetFormViewFactory
-import com.okta.idx.android.directauth.sdk.viewFactories.RegisterVerifyCodeFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.RegisterFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.RegisterPasswordFormViewFactory
 import com.okta.idx.android.directauth.sdk.viewFactories.RegisterPhoneFormViewFactory
@@ -48,14 +46,13 @@ object IdxFormRegistry {
             RegisterSelectAuthenticatorForm::class.java,
             RegisterSelectAuthenticatorFormViewFactory()
         )
-        register(RegisterVerifyCodeForm::class.java, RegisterVerifyCodeFormViewFactory())
         register(RegisterPasswordForm::class.java, RegisterPasswordFormViewFactory())
         register(RegisterPhoneForm::class.java, RegisterPhoneFormViewFactory())
         register(ForgotPasswordForm::class.java, ForgotPasswordFormViewFactory())
         register(PasswordResetForm::class.java, PasswordResetFormViewFactory())
         register(SelectAuthenticatorForm::class.java, SelectAuthenticatorFormViewFactory())
         register(SelectFactorForm::class.java, SelectFactorFormViewFactory())
-        register(AuthenticateVerifyCodeForm::class.java, AuthenticateVerifyCodeFormViewFactory())
+        register(VerifyCodeForm::class.java, VerifyCodeFormViewFactory())
     }
 
     fun <F : Form> register(
