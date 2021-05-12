@@ -19,6 +19,7 @@ import com.okta.idx.android.directauth.sdk.Form
 import com.okta.idx.android.directauth.sdk.FormAction
 import com.okta.idx.sdk.api.client.Authenticator
 import com.okta.idx.sdk.api.client.ProceedContext
+import com.okta.idx.sdk.api.model.AuthenticationStatus
 
 class SelectAuthenticatorForm internal constructor(
     val viewModel: ViewModel,
@@ -36,7 +37,31 @@ class SelectAuthenticatorForm internal constructor(
                 viewModel.proceedContext,
                 authenticator
             )
-            handleKnownTransitions(response)
+            handleTerminalTransitions(response)
+            when (response.authenticationStatus) {
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_VERIFICATION_DATA -> {
+                    if (authenticator.factors.size == 1) {
+                        verifyForm(response)
+                    } else {
+                        selectFactorForm(response, authenticator.factors)
+                    }
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT_DATA -> {
+                    if (authenticator.factors.size == 1) {
+                        registerVerifyForm(response, authenticator.factors.first())
+                    } else {
+                        selectFactorForm(response, authenticator.factors)
+                    }
+                }
+                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT -> {
+                    if (authenticator.factors.size == 1) {
+                        registerVerifyForm(response, authenticator.factors.first())
+                    } else {
+                        selectFactorForm(response, authenticator.factors)
+                    }
+                }
+                else -> handleKnownTransitions(response)
+            }
         }
     }
 

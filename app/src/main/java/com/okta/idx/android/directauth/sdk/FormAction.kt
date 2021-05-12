@@ -22,6 +22,7 @@ import com.okta.idx.android.directauth.sdk.forms.RegisterPhoneForm
 import com.okta.idx.android.directauth.sdk.forms.SelectAuthenticatorForm
 import com.okta.idx.android.directauth.sdk.forms.SelectFactorForm
 import com.okta.idx.android.directauth.sdk.forms.UsernamePasswordForm
+import com.okta.idx.sdk.api.client.Authenticator
 import com.okta.idx.sdk.api.client.IDXAuthenticationWrapper
 import com.okta.idx.sdk.api.client.ProceedContext
 import com.okta.idx.sdk.api.exception.ProcessingException
@@ -87,28 +88,19 @@ data class FormAction internal constructor(
                     registerPasswordForm(response)
                 }
                 AuthenticationStatus.AWAITING_AUTHENTICATOR_SELECTION -> {
-                    authenticateSelectAuthenticatorForm(response)
-                }
-                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT -> {
-                    registerVerifyForm(response)
-                }
-                AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT_DATA -> {
-                    handleEnrollmentData(response)
+                    selectAuthenticatorForm(response)
                 }
                 AuthenticationStatus.AWAITING_AUTHENTICATOR_VERIFICATION -> {
                     verifyForm(response)
                 }
-                AuthenticationStatus.AWAITING_AUTHENTICATOR_VERIFICATION_DATA -> {
-                    handleVerificationData(response)
-                }
                 AuthenticationStatus.AWAITING_AUTHENTICATOR_ENROLLMENT_SELECTION -> {
-                    authenticateSelectAuthenticatorForm(response)
+                    selectAuthenticatorForm(response)
                 }
                 else -> unsupportedPolicy()
             }
         }
 
-        private fun authenticateSelectAuthenticatorForm(
+        private fun selectAuthenticatorForm(
             previousResponse: AuthenticationResponse
         ): ProceedTransition {
             val canSkip =
@@ -126,16 +118,10 @@ data class FormAction internal constructor(
             )
         }
 
-        private fun handleEnrollmentData(response: AuthenticationResponse): ProceedTransition {
-            return if (response.currentAuthenticatorMethods.size == 1) {
-                registerVerifyForm(response)
-            } else {
-                selectFactorForm(response)
-            }
-        }
-
-        private fun selectFactorForm(response: AuthenticationResponse): ProceedTransition {
-            val factors = response.authenticators.first().factors
+        fun selectFactorForm(
+            response: AuthenticationResponse,
+            factors: List<Authenticator.Factor>
+        ): ProceedTransition {
             val canSkip = authenticationWrapper.isSkipAuthenticatorPresent(response.proceedContext)
             return ProceedTransition.FormTransition(
                 SelectFactorForm(
@@ -149,8 +135,11 @@ data class FormAction internal constructor(
             )
         }
 
-        private fun registerVerifyForm(response: AuthenticationResponse): ProceedTransition {
-            return when (response.currentAuthenticatorMethods.first()) {
+        fun registerVerifyForm(
+            response: AuthenticationResponse,
+            factor: Authenticator.Factor,
+        ): ProceedTransition {
+            return when (factor.method) {
                 "email" -> {
                     ProceedTransition.FormTransition(
                         VerifyCodeForm(
@@ -167,7 +156,7 @@ data class FormAction internal constructor(
                         RegisterPhoneForm(
                             RegisterPhoneForm.ViewModel(
                                 proceedContext = response.proceedContext,
-                                factor = response.authenticators.first().factors.first()
+                                factor = factor
                             ),
                             formAction
                         )
@@ -178,7 +167,7 @@ data class FormAction internal constructor(
                         RegisterPhoneForm(
                             RegisterPhoneForm.ViewModel(
                                 proceedContext = response.proceedContext,
-                                factor = response.authenticators.first().factors.first()
+                                factor = factor
                             ),
                             formAction
                         )
@@ -197,21 +186,13 @@ data class FormAction internal constructor(
             )
         }
 
-        private fun verifyForm(response: AuthenticationResponse): ProceedTransition {
+        fun verifyForm(response: AuthenticationResponse): ProceedTransition {
             return ProceedTransition.FormTransition(
                 VerifyCodeForm(
                     VerifyCodeForm.ViewModel(proceedContext = response.proceedContext),
                     formAction
                 )
             )
-        }
-
-        private fun handleVerificationData(response: AuthenticationResponse): ProceedTransition {
-            return if (response.currentAuthenticatorMethods.size == 1) {
-                verifyForm(response)
-            } else {
-                selectFactorForm(response)
-            }
         }
 
         private fun unsupportedPolicy(): ProceedTransition {
