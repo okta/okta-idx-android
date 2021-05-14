@@ -13,13 +13,15 @@ android {
         versionName '1.0'
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        testInstrumentationRunnerArgument 'listener', 'leakcanary.FailTestOnLeakRunListener'
+//        testInstrumentationRunnerArgument 'listener', 'leakcanary.FailTestOnLeakRunListener'
     }
 
     sourceSets {
         androidTest {
-            java.srcDirs += ['src/test/java']
-            resources.srcDirs += ['src/test/resources']
+            java.srcDirs += ['src/sharedTest/java']
+        }
+        test {
+            java.srcDirs += ['src/sharedTest/java']
         }
     }
 
@@ -71,20 +73,20 @@ dependencies {
 
     implementation deps.jackson_databind
 
-    debugImplementation deps.leakcanary.android
+//    debugImplementation deps.leakcanary.android
 
     testImplementation deps.junit
     testImplementation deps.okhttp.mock_web_server
     testImplementation deps.okhttp.tls
     testImplementation deps.truth
 
-    androidTestImplementation deps.leakcanary.instrumentation
+//    androidTestImplementation deps.leakcanary.instrumentation
     androidTestImplementation deps.okhttp.mock_web_server
     androidTestImplementation deps.okhttp.tls
     androidTestImplementation deps.junit
     androidTestImplementation deps.androidx_test.core
     androidTestImplementation deps.androidx_test.ext_junit
-    debugImplementation deps.androidx_test.fragment
+//    debugImplementation deps.androidx_test.fragment
     androidTestImplementation deps.androidx_test.navigation
     androidTestImplementation deps.androidx_test.runner
     androidTestImplementation deps.androidx_test.rules
