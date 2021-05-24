@@ -36,7 +36,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class BasicLoginWithPasswordMockFreeTest {
+class BasicLoginWithPasswordEndToEndTest {
     @get:Rule val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     // Mary logs in with a Password
