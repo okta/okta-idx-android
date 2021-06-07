@@ -19,7 +19,7 @@ before_install:
   - ls
   - git clone https://github.com/okta/okta-idx-java.git
   - cd okta-idx-java
-  - git checkout direct-auth
+  - git checkout master
   - mvn install
   - cd -
 before_cache:
