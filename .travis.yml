@@ -16,9 +16,12 @@ jdk:
 before_install:
   - yes | sdkmanager "build-tools;29.0.2"
   - yes | sdkmanager "platforms;android-28"
-  - git clone git@github.com:okta/okta-idx-java.git
+  - ls
+  - git clone https://github.com/okta/okta-idx-java.git
   - cd okta-idx-java
+  - git checkout direct-auth
   - mvn install
+  - cd -
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
