@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.okta.idx.android.infrastructure.a18n
+
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.okta.idx.android.infrastructure.EndToEndCredentials
@@ -21,7 +22,12 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request.Builder
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.util.regex.Pattern
+
+private const val RETRY_COUNT = 5
+
 object A18NWrapper {
+
     private val client = OkHttpClient()
     private val objectMapper = ObjectMapper()
     init {
@@ -53,32 +59,49 @@ object A18NWrapper {
     }
 
     fun getCodeFromEmail(profile: A18NProfile): String {
-        Thread.sleep(5000) // TODO: Optimize and loop these.
         val request = Builder()
-                .url(profile.url + "/email/latest")
-                .build()
-        var result = ""
-        client.newCall(request).execute().use {
-            val codeSubstring = "Enter a code instead: "
-            val body = it.body!!.string()
-            val codeStarts = body.indexOf(codeSubstring) + codeSubstring.length
-            result = body.substring(codeStarts, codeStarts + 6)
+            .url(profile.url + "/email/latest/content")
+            .build()
+        var result: String? = null
+        var retryCount = RETRY_COUNT
+        while (retryCount > 0 && result == null) {
+            Thread.sleep(500)
+            client.newCall(request).execute().use {
+                result = fetchCodeFromRegistrationEmail(it.body!!.string())
+            }
+            retryCount--
         }
-        return result
+        return result!!
     }
     
     fun getCodeFromPhone(profile: A18NProfile): String {
-        Thread.sleep(5000)
         val request = Builder()
                 .url(profile.url + "/sms/latest/content")
                 .build()
-        var result = ""
-        client.newCall(request).execute().use {
-            val codeSubstring = "code is "
-            val body = it.body!!.string()
-            val codeStarts = body.indexOf(codeSubstring) + codeSubstring.length
-            result = body.substring(codeStarts, codeStarts + 6)
+        var result: String? = null
+        var retryCount = RETRY_COUNT
+        while (retryCount > 0 && result == null) {
+            Thread.sleep(500)
+            client.newCall(request).execute().use {
+                val codeSubstring = "code is "
+                val body = it.body!!.string()
+                val codeStarts = body.indexOf(codeSubstring) + codeSubstring.length
+                result = body.substring(codeStarts, codeStarts + 6)
+            }
+            retryCount--
         }
-        return result
+        return result!!
+    }
+
+    private fun fetchCodeFromRegistrationEmail(emailContent: String): String? {
+        val pattern = Pattern.compile("To verify manually, enter this code: (\\d{6})")
+        val matcher = pattern.matcher(emailContent)
+        return if (matcher.find()) matcher.group(1) else null
+    }
+
+    private fun fetchCodeFromPasswordResetEmail(smsContent: String): String? {
+        val pattern = Pattern.compile("Enter a code instead: (\\d{6})")
+        val matcher = pattern.matcher(smsContent)
+        return if (matcher.find()) matcher.group(1) else null
     }
 }
