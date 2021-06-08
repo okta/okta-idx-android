@@ -32,6 +32,7 @@ import com.okta.idx.android.infrastructure.FIRST_NAME_EDIT_TEXT
 import com.okta.idx.android.infrastructure.ID_TOKEN_TYPE_TEXT_VIEW
 import com.okta.idx.android.infrastructure.PHONE_EDIT_TEXT
 import com.okta.idx.android.infrastructure.SELECT_BUTTON
+import com.okta.idx.android.infrastructure.a18n.A18NWrapper
 import com.okta.idx.android.infrastructure.espresso.selectAuthenticator
 import com.okta.idx.android.infrastructure.espresso.waitForElement
 import com.okta.idx.android.infrastructure.network.NetworkRule
@@ -48,6 +49,45 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SelfServiceRegistrationTestEndToEnd {
     @get:Rule val activityRule = ActivityScenarioRule(MainActivity::class.java)
+
+    // Mary signs up for an account with Password, sets up required Email factor, then skips
+    // optional SMS.
+    @Test fun scenario_4_1_1() {
+        val profile = A18NWrapper.createProfile()
+
+        activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.self_service_registration_button)).perform(click())
+        waitForElement(FIRST_NAME_EDIT_TEXT)
+
+        onView(withId(R.id.first_name_edit_text)).perform(replaceText("Mary"))
+        onView(withId(R.id.last_name_edit_text)).perform(replaceText("Jo"))
+        onView(withId(R.id.primary_email_edit_text)).perform(replaceText(profile.emailAddress))
+        onView(withId(R.id.register_button)).perform(click())
+
+        waitForElement(SELECT_BUTTON)
+        selectAuthenticator("Password")
+
+        waitForElement(CONFIRMED_PASSWORD_EDIT_TEXT)
+        onView(withId(R.id.password_edit_text)).perform(replaceText("Abcd1234"))
+        onView(withId(R.id.confirmed_password_edit_text)).perform(replaceText("Abcd1234"))
+        onView(withId(R.id.submit_button)).perform(click())
+
+        waitForElement(SELECT_BUTTON)
+        selectAuthenticator("Email")
+
+        waitForElement(CODE_EDIT_TEXT)
+        val code = A18NWrapper.getCodeFromEmail(profile)
+        onView(withId(R.id.code_edit_text)).perform(replaceText(code))
+        onView(withId(R.id.submit_button)).perform(click())
+
+        waitForElement(SELECT_BUTTON)
+        onView(withId(R.id.skip_button)).perform(click())
+
+        waitForElement(ID_TOKEN_TYPE_TEXT_VIEW)
+        A18NWrapper.deleteProfile(profile)
+        onView(withText("Token Type:")).check(matches(isDisplayed()))
+        onView(withText("Bearer")).check(matches(isDisplayed()))
+    }
 
     // Mary signs up with an invalid Email
     @Test fun scenario_4_1_3() {

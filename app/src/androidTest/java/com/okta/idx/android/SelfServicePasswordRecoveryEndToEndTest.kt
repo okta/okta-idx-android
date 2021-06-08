@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.infrastructure
+package com.okta.idx.android
 
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso.onView
@@ -22,8 +22,9 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.okta.idx.android.MainActivity
-import com.okta.idx.android.R
+import com.okta.idx.android.infrastructure.ERROR_TEXT_VIEW
+import com.okta.idx.android.infrastructure.EndToEndCredentials
+import com.okta.idx.android.infrastructure.USERNAME_EDIT_TEXT
 import com.okta.idx.android.infrastructure.espresso.waitForElement
 import org.junit.Rule
 import org.junit.Test
