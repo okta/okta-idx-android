@@ -15,9 +15,12 @@
  */
 package com.okta.idx.android
 
-import androidx.lifecycle.ViewModel
 import com.okta.idx.sdk.api.response.TokenResponse
 
-internal class TokenViewModel : ViewModel() {
-    lateinit var tokenResponse: TokenResponse
+internal object TokenViewModel {
+    var _tokenResponse: TokenResponse? = null
+    val tokenResponse: TokenResponse
+        get() {
+            return _tokenResponse!!
+        }
 }

@@ -2,6 +2,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
+def oktaProperties = new Properties()
+rootProject.file("okta.properties").withInputStream { oktaProperties.load(it) }
+
 android {
     compileSdkVersion build_versions.compile_sdk
 
@@ -12,14 +15,26 @@ android {
         versionCode 1
         versionName '1.0'
 
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        testInstrumentationRunnerArgument 'listener', 'leakcanary.FailTestOnLeakRunListener'
+        buildConfigField "String", 'ISSUER', "\"${oktaProperties.getProperty('issuer')}\""
+        buildConfigField "String", 'CLIENT_ID', "\"${oktaProperties.getProperty('clientId')}\""
+        buildConfigField "String", 'REDIRECT_URI', "\"${oktaProperties.getProperty('redirectUri')}\""
+
+        manifestPlaceholders = [
+                "oktaIdxRedirectScheme": parseScheme(oktaProperties.getProperty('redirectUri'))
+        ]
+
+        testInstrumentationRunner 'io.cucumber.android.runner.CucumberAndroidJUnitRunner'
+        testInstrumentationRunnerArguments = [
+                cucumberUseAndroidJUnitRunner: findProperty("cucumberUseAndroidJUnitRunner") ?: 'true',
+        ]
     }
 
     sourceSets {
         androidTest {
-            java.srcDirs += ['src/test/java']
-            resources.srcDirs += ['src/test/resources']
+            java.srcDirs += ['src/sharedTest/java']
+        }
+        test {
+            java.srcDirs += ['src/sharedTest/java']
         }
     }
 
@@ -69,19 +84,19 @@ dependencies {
     implementation deps.timber
     implementation deps.okta.idx
 
-    debugImplementation deps.leakcanary.android
+    implementation deps.jackson_databind
 
     testImplementation deps.junit
     testImplementation deps.okhttp.mock_web_server
     testImplementation deps.okhttp.tls
     testImplementation deps.truth
 
-    androidTestImplementation deps.leakcanary.instrumentation
-    androidTestImplementation deps.okhttp.mock_web_server
+    androidTestImplementation deps.jackson_yaml
     androidTestImplementation deps.okhttp.tls
     androidTestImplementation deps.junit
     androidTestImplementation deps.androidx_test.core
     androidTestImplementation deps.androidx_test.ext_junit
+    androidTestImplementation deps.androidx_test.navigation
     androidTestImplementation deps.androidx_test.runner
     androidTestImplementation deps.androidx_test.rules
     androidTestImplementation deps.androidx_test.uiautomator
@@ -90,4 +105,16 @@ dependencies {
     androidTestImplementation deps.espresso.contrib
     androidTestImplementation deps.espresso.intents
     androidTestImplementation deps.truth
+
+    androidTestImplementation deps.cucumber.android
+    androidTestImplementation deps.cucumber.pico_container
+    androidTestImplementation deps.okta.management_sdk
+}
+
+static def parseScheme(String uri) {
+    def index = uri.indexOf(':/')
+    if (index == -1) {
+        throw new IllegalStateException("Scheme is not in a valid format.")
+    }
+    return uri.substring(0, index)
 }
