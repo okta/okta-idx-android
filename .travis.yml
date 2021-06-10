@@ -23,9 +23,10 @@ before_script:
 
 script:
   - set -e # Fail on error.
+  - set -o pipefail # If the pipe command returns a bad exit code, fail the build.
   - ./gradlew build assembleAndroidTest --parallel
-  - ./gradlew connectedCheck
-  - set -o pipefail; ./gradlew connectedCheck -PcucumberUseAndroidJUnitRunner=false --info | grep -E 'SUCCESS|FAILED'
+  - ./gradlew connectedCheck --info | grep --line-buffered -E 'SUCCESS|FAILED'
+  - ./gradlew connectedCheck -PcucumberUseAndroidJUnitRunner=false --info | grep --line-buffered -E 'SUCCESS|FAILED'
 
 notifications:
   email: false
