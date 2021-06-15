@@ -16,8 +16,7 @@
 package com.okta.idx.android
 
 import android.net.Uri
-import androidx.lifecycle.ViewModel
 
-class MainActivityViewModel : ViewModel() {
+object SocialRedirectState {
     var socialRedirectListener: ((uri: Uri) -> Unit)? = null
 }

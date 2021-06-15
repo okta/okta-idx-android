@@ -15,7 +15,6 @@
  */
 package com.okta.idx.android
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
@@ -23,11 +22,10 @@ class SocialRedirectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intent = Intent(this, MainActivity::class.java)
-        intent.action = MainActivity.SOCIAL_REDIRECT_ACTION
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        intent.data = getIntent().data
-        startActivity(intent)
+        intent.data?.let {
+            SocialRedirectState.socialRedirectListener?.invoke(it)
+        }
+
         finish()
     }
 }

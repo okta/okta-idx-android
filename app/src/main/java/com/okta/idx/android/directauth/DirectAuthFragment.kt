@@ -20,10 +20,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.okta.idx.android.MainActivityViewModel
+import com.okta.idx.android.SocialRedirectState
 import com.okta.idx.android.TokenViewModel
 import com.okta.idx.android.databinding.ErrorBinding
 import com.okta.idx.android.databinding.ErrorFieldBinding
@@ -40,7 +39,6 @@ internal class DirectAuthFragment : BaseFragment<FragmentDirectAuthBinding>(
     FragmentDirectAuthBinding::inflate
 ) {
     private val viewModel by viewModels<DirectAuthViewModel>()
-    private val activityViewModel by activityViewModels<MainActivityViewModel>()
     private lateinit var backPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,12 +47,12 @@ internal class DirectAuthFragment : BaseFragment<FragmentDirectAuthBinding>(
             viewModel.goToLaunchPage()
         }
 
-        activityViewModel.socialRedirectListener = viewModel::handleSocialRedirectUri
+        SocialRedirectState.socialRedirectListener = viewModel::handleSocialRedirectUri
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        activityViewModel.socialRedirectListener = null
+        SocialRedirectState.socialRedirectListener = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

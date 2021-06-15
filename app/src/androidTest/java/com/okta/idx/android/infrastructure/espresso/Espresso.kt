@@ -28,6 +28,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import com.google.common.truth.Truth.assertThat
 import com.okta.idx.android.R
 import org.hamcrest.Matchers.allOf
 
@@ -51,4 +52,16 @@ fun waitForElement(resourceId: String) {
         // This will fail and nicely show the view hierarchy.
         onView(withResourceName(resourceId)).check(matches(isDisplayed()))
     }
+}
+
+fun fillInEditText(resourceId: String, text: String) {
+    val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val selector = UiSelector().resourceId(resourceId)
+    assertThat(uiDevice.findObject(selector).setText(text)).isTrue()
+}
+
+fun clickButtonWithText(text: String) {
+    val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val selector = UiSelector().text(text)
+    assertThat(uiDevice.findObject(selector).click()).isTrue()
 }
