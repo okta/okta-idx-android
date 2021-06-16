@@ -20,13 +20,14 @@ import android.content.Intent
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.okta.idx.android.infrastructure.EndToEndCredentials
+import com.okta.idx.android.infrastructure.SELECT_BUTTON
 import com.okta.idx.android.infrastructure.espresso.clickButtonWithText
 import com.okta.idx.android.infrastructure.espresso.fillInEditText
-import com.okta.idx.android.infrastructure.espresso.scrollToToBottom
-import com.okta.idx.android.infrastructure.espresso.waitForElementWithText
+import com.okta.idx.android.infrastructure.espresso.waitForElement
 import com.okta.idx.android.infrastructure.execShellCommand
 import io.cucumber.java.Before
 import io.cucumber.java.en.And
+import io.cucumber.java.en.Then
 import timber.log.Timber
 
 internal class SocialDefinitions {
@@ -43,32 +44,20 @@ internal class SocialDefinitions {
 
         try {
             clickButtonWithText("Accept & continue")
-
-            try {
-                clickButtonWithText("No thanks")
-            } catch (e: Throwable) {
-                Timber.e(e, "Error Calling No thanks")
-            }
-
-            try {
-                clickButtonWithText("No Thanks")
-            } catch (e: Throwable) {
-                Timber.e(e, "Error Calling No Thanks")
-            }
         } catch (e: Throwable) {
             Timber.e(e, "Error Calling accept and continue")
         }
 
         try {
-            // If logged in ("Main Menu") text available
-            waitForElementWithText("Main Menu")
-            clickButtonWithText("Main Menu")
-            scrollToToBottom()
-            waitForElementWithText("Log Out")
-            clickButtonWithText("Log Out")
-            waitForElementWithText("Create New Account")
+            clickButtonWithText("No thanks")
         } catch (e: Throwable) {
-            Timber.e(e, "Error Logging out of facebook. This is expected if not logged in.")
+            Timber.e(e, "Error Calling No thanks")
+        }
+
+        try {
+            clickButtonWithText("No Thanks")
+        } catch (e: Throwable) {
+            Timber.e(e, "Error Calling No Thanks")
         }
     }
 
@@ -76,5 +65,16 @@ internal class SocialDefinitions {
         fillInEditText("m_login_email", EndToEndCredentials["/cucumber/facebookEmail"])
         fillInEditText("m_login_password", EndToEndCredentials["/cucumber/facebookPassword"])
         clickButtonWithText("Log In")
+    }
+
+    @And("^logs in to Facebook with MFA User") fun logs_in_to_facebook_with_mfa_user() {
+        fillInEditText("m_login_email", EndToEndCredentials["/cucumber/facebookEmailMfa"])
+        fillInEditText("m_login_password", EndToEndCredentials["/cucumber/facebookPasswordMfa"])
+        clickButtonWithText("Log In")
+    }
+
+    @Then("^Mary should see a page to select an authenticator for MFA$")
+    fun mary_should_see_a_page_to_select_an_authenticator_for_mfa() {
+        waitForElement(SELECT_BUTTON)
     }
 }
