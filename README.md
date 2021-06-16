@@ -111,6 +111,9 @@ cucumber:
   invalidPassword: example-change-me
   firstName: example-change-me
   newPassword: example-change-me
+  facebookEmail: example-change-me
+  facebookPassword: example-change-me
+  facebookName: example-change-me
 managementSdk:
   clientId: example-change-me
   orgUrl: example-change-me
