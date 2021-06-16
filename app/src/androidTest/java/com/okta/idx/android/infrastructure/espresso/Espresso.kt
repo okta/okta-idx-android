@@ -54,6 +54,15 @@ fun waitForElement(resourceId: String) {
     }
 }
 
+fun waitForElementWithText(text: String) {
+    val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val selector = UiSelector().text(text)
+    if (!uiDevice.findObject(selector).waitForExists(10_000)) {
+        // This will fail and nicely show the view hierarchy.
+        onView(withText(text)).check(matches(isDisplayed()))
+    }
+}
+
 fun fillInEditText(resourceId: String, text: String) {
     val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     val selector = UiSelector().resourceId(resourceId)

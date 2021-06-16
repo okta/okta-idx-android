@@ -47,7 +47,7 @@ class ActivityHooks : Application.ActivityLifecycleCallbacks {
     @After fun finishActivity() {
         countDownLatch = CountDownLatch(1)
         activity.finish()
-        assertThat(countDownLatch.await(10, TimeUnit.SECONDS)).isTrue()
+        countDownLatch.await(10, TimeUnit.SECONDS)
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
