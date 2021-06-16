@@ -33,7 +33,6 @@ import com.okta.idx.android.R
 import com.okta.idx.android.infrastructure.EndToEndCredentials
 import com.okta.idx.android.infrastructure.ID_TOKEN_TYPE_TEXT_VIEW
 import com.okta.idx.android.infrastructure.espresso.waitForElement
-import com.okta.idx.android.infrastructure.espresso.waitForElementWithText
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -128,7 +127,7 @@ class DashboardDefinitions {
 
     @And("^the cell for the value of \"email\" is shown and contains her email$")
     fun the_cell_for_the_value_of_email_is_shown_and_contains_her_email() {
-        waitForElementWithText(EndToEndCredentials["/cucumber/facebookEmail"])
+        Thread.sleep(5000)
         claimViewInteraction("email", EndToEndCredentials["/cucumber/facebookEmail"])
             .perform(scrollTo())
             .check(matches(isDisplayed()))

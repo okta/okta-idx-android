@@ -27,6 +27,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withResourceName
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth.assertThat
 import com.okta.idx.android.R
@@ -61,6 +62,11 @@ fun waitForElementWithText(text: String) {
         // This will fail and nicely show the view hierarchy.
         onView(withText(text)).check(matches(isDisplayed()))
     }
+}
+
+fun scrollToToBottom() {
+    val appViews = UiScrollable(UiSelector().scrollable(true))
+    assertThat(appViews.scrollToEnd(20, 5)).isTrue()
 }
 
 fun fillInEditText(resourceId: String, text: String) {
