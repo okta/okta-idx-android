@@ -24,6 +24,7 @@ import com.okta.idx.android.infrastructure.espresso.clickButtonWithText
 import com.okta.idx.android.infrastructure.espresso.fillInEditText
 import com.okta.idx.android.infrastructure.espresso.scrollToToBottom
 import com.okta.idx.android.infrastructure.espresso.waitForElementWithText
+import com.okta.idx.android.infrastructure.execShellCommand
 import io.cucumber.java.Before
 import io.cucumber.java.en.And
 import timber.log.Timber
@@ -31,7 +32,10 @@ import timber.log.Timber
 internal class SocialDefinitions {
     @Before("@logOutOfFacebook", order = 0)
     fun logOutOfFacebook() {
-        // Open browser to facebook.com
+        execShellCommand("pm clear com.android.chrome")
+
+        Thread.sleep(2000)
+
         val application = ApplicationProvider.getApplicationContext<Application>()
         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://facebook.com"))
         browserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -39,7 +43,18 @@ internal class SocialDefinitions {
 
         try {
             clickButtonWithText("Accept & continue")
-            clickButtonWithText("No thanks")
+
+            try {
+                clickButtonWithText("No thanks")
+            } catch (e: Throwable) {
+                Timber.e(e, "Error Calling No thanks")
+            }
+
+            try {
+                clickButtonWithText("No Thanks")
+            } catch (e: Throwable) {
+                Timber.e(e, "Error Calling No Thanks")
+            }
         } catch (e: Throwable) {
             Timber.e(e, "Error Calling accept and continue")
         }
