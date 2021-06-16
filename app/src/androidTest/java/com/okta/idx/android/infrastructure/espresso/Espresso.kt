@@ -80,3 +80,9 @@ fun clickButtonWithText(text: String) {
     val selector = UiSelector().text(text)
     assertThat(uiDevice.findObject(selector).click()).isTrue()
 }
+
+fun clickButtonWithTextMatching(text: String) {
+    val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val selector = UiSelector().textMatches(text)
+    assertThat(uiDevice.findObject(selector).click()).isTrue()
+}

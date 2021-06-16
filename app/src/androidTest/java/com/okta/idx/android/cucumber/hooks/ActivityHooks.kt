@@ -24,11 +24,11 @@ import com.google.common.truth.Truth.assertThat
 import com.okta.idx.android.MainActivity
 import io.cucumber.java.After
 import io.cucumber.java.Before
+import timber.log.Timber
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class ActivityHooks : Application.ActivityLifecycleCallbacks {
-    private lateinit var activity: Activity
     private lateinit var countDownLatch: CountDownLatch
 
     @Before fun launchActivity() {
@@ -46,12 +46,17 @@ class ActivityHooks : Application.ActivityLifecycleCallbacks {
 
     @After fun finishActivity() {
         countDownLatch = CountDownLatch(1)
-        activity.finish()
-        countDownLatch.await(10, TimeUnit.SECONDS)
+        SharedState.activity?.let {
+            it.finish()
+            countDownLatch.await(10, TimeUnit.SECONDS)
+            val application = ApplicationProvider.getApplicationContext<Application>()
+            application.unregisterActivityLifecycleCallbacks(this)
+        }
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        this.activity = activity
+        Timber.d("Created: %s", activity)
+        SharedState.activity = activity
         countDownLatch.countDown()
     }
 
@@ -71,6 +76,7 @@ class ActivityHooks : Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityDestroyed(activity: Activity) {
+        Timber.d("Destroying: %s", activity)
         countDownLatch.countDown()
     }
 }

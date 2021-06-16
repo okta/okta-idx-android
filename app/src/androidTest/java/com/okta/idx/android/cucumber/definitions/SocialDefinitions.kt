@@ -22,6 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.okta.idx.android.infrastructure.EndToEndCredentials
 import com.okta.idx.android.infrastructure.SELECT_BUTTON
 import com.okta.idx.android.infrastructure.espresso.clickButtonWithText
+import com.okta.idx.android.infrastructure.espresso.clickButtonWithTextMatching
 import com.okta.idx.android.infrastructure.espresso.fillInEditText
 import com.okta.idx.android.infrastructure.espresso.waitForElement
 import com.okta.idx.android.infrastructure.execShellCommand
@@ -49,16 +50,14 @@ internal class SocialDefinitions {
         }
 
         try {
-            clickButtonWithText("No thanks")
+            clickButtonWithTextMatching("No [t|T]hanks")
         } catch (e: Throwable) {
             Timber.e(e, "Error Calling No thanks")
         }
 
-        try {
-            clickButtonWithText("No Thanks")
-        } catch (e: Throwable) {
-            Timber.e(e, "Error Calling No Thanks")
-        }
+        Thread.sleep(2000)
+        execShellCommand("stop com.android.chrome")
+        Thread.sleep(2000)
     }
 
     @And("^logs in to Facebook$") fun logs_in_to_facebook() {

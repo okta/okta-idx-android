@@ -127,7 +127,7 @@ class DashboardDefinitions {
 
     @And("^the cell for the value of \"email\" is shown and contains her email$")
     fun the_cell_for_the_value_of_email_is_shown_and_contains_her_email() {
-        Thread.sleep(5000)
+        Thread.sleep(1000)
         claimViewInteraction("email", EndToEndCredentials["/cucumber/facebookEmail"])
             .perform(scrollTo())
             .check(matches(isDisplayed()))
