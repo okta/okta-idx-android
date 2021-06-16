@@ -81,12 +81,10 @@ class SocialTest : BaseMainActivityTest() {
         val state = TestingGlobals.CURRENT_PROCEED_CONTEXT.get().clientContext?.state
         // Send the callback.
         val redirectIntent = Intent(
-            Intent.ACTION_VIEW,
+            MainActivity.SOCIAL_REDIRECT_ACTION,
             Uri.parse("${BuildConfig.REDIRECT_URI}?interaction_code=o8NoWT5_t7NsDy_L625JWuIT_AOOuhtDZIiiqfB6qIQ&state=$state")
         )
-        activityRule.scenario.onActivity {
-            it.startActivity(redirectIntent)
-        }
+        activityRule.scenario.onActivity { it.onNewIntent(redirectIntent) }
 
         waitForElement(ID_TOKEN_TYPE_TEXT_VIEW)
         onView(withText("Token Type:")).check(matches(isDisplayed()))
