@@ -50,13 +50,13 @@ Before running this sample, you will need the following:
         | Setting              | Value                                               |
         | -------------------- | --------------------------------------------------- |
         | Application Name     | MyApp *(must be unique)*        |
-        | Login URI            | com.okta.example:/callback                          |
-        | End Session URI      | com.okta.example:/logoutCallback                    |
-        | Allowed grant types  | Authorization Code, Refresh Token *(recommended)*   |
+        | Sign-in redirect URIs| com.okta.sample.android:/login                          |
+        | Allowed grant types  | Authorization Code, Interaction Code, Refresh Token *(recommended)*   |
 
     4. Click **Finish** to redirect back to the *General Settings* of your application.
     5. Copy the **Client ID**, as it will be needed for the client configuration.
-    6. Get your issuer, which is a combination of your Org URL (found in the upper right of the console home page) . For example, <https://dev-1234.oktapreview.com.>
+    6. Get your issuer, which is a combination of your Org URL (found in the upper right of the console home page) . For example, <https://dev-1234.okta.com.>
+    7. Ensure your authorization server has enabled the Interaction Code flow. Navigate to Security -> API -> Authorization Servers -> default -> Access Policies -> Default Policy -> Edit Default Policy Rule -> Interaction Code -> Update Rule
 
 **Note:** *As with any Okta application, make sure you assign Users or Groups to the application. Otherwise, no one can use it.*
 
@@ -74,6 +74,11 @@ issuer=https://YOUR_ORG.okta.com/oauth2/default
 clientId=test-client-id
 redirectUri=com.okta.sample.android:/login
 ```
+
+Notes: 
+- `issuer` - is your authorization server, usually `https://your_okta_domain.okta.com/oauth2/default`, but custom authorization servers are supported. See `https://your_okta_domain.okta.com/admin/oauth2/as` for available authorization servers.
+- `clientId` - is your applications client id, created in your okta admin dashboard
+- `redirectUri` - is used for external [identity providers](https://developer.okta.com/docs/reference/api/idps/), and should follow the format of [reverse domain name notation](https://en.wikipedia.org/wiki/Reverse_domain_name_notation) + `/login`, ie: `com.okta.sample.android:/login`
 
 ### Dependencies
 
