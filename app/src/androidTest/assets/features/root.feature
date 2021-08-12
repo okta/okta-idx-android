@@ -5,7 +5,6 @@ Feature: 0.1: Root page for Direct Auth Demo Application
     When Mary navigates to the Root View
     Then the Root Page shows links to the Entry Points as defined in https://oktawiki.atlassian.net/l/c/Pw7DVm1t
 
-  @skipScenario
   Scenario: 0.1.2: Mary visits the Root View And WITH an authenticated session
     Given Mary has an authenticated session
     Then Mary sees a table with the claims from the /userinfo response
