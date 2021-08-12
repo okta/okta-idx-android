@@ -115,7 +115,7 @@ class IdxAuthenticator internal constructor(
         SIGNED_NONCE,
         TOTP,
         PASSWORD,
-        WEB_AUTH_N,
+        WEB_AUTHN,
         SECURITY_QUESTION,
     }
 }
