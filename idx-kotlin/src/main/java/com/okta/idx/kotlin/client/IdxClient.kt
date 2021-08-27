@@ -189,8 +189,9 @@ class IdxClient internal constructor(
         val request: Request
 
         withContext(configuration.computationDispatcher) {
-            val formBodyBuilder = FormBody.Builder()
+            remediation["code_verifier"]?.value = clientContext.codeVerifier
 
+            val formBodyBuilder = FormBody.Builder()
             remediation.form.allFields.forEach { field ->
                 val value = when (val fieldValue = field.value) {
                     is JsonPrimitive -> fieldValue.content
@@ -201,8 +202,6 @@ class IdxClient internal constructor(
                     formBodyBuilder.add(field.name, value)
                 }
             }
-
-            formBodyBuilder.add("code_verifier", clientContext.codeVerifier)
 
             request = Request.Builder()
                 .url(remediation.href)
