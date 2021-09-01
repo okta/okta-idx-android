@@ -114,6 +114,12 @@ internal class DynamicAuthViewModel : ViewModel() {
                 form?.visibleFields?.forEach {
                     result += it.asDynamicAuthFields()
                 }
+                options?.let { options ->
+                    result += DynamicAuthField.Options(options) {
+                        selectedOption = it
+                    }
+                }
+
                 result
             }
             else -> {
@@ -136,17 +142,20 @@ internal class DynamicAuthViewModel : ViewModel() {
             else -> "Continue"
         }
         return listOf(DynamicAuthField.Action(title) {
-            val remediation = this
-            viewModelScope.launch {
-                when (val resumeResult = client?.proceed(remediation)) {
-                    is IdxClientResult.Error -> {
-                        _state.value = DynamicAuthState.Error("Failed to call proceed")
-                    }
-                    is IdxClientResult.Response -> {
-                        handleResponse(resumeResult.response)
-                    }
+            proceed(this)
+        })
+    }
+
+    private fun proceed(remediation: IdxRemediation) {
+        viewModelScope.launch {
+            when (val resumeResult = client?.proceed(remediation)) {
+                is IdxClientResult.Error -> {
+                    _state.value = DynamicAuthState.Error("Failed to call proceed")
+                }
+                is IdxClientResult.Response -> {
+                    handleResponse(resumeResult.response)
                 }
             }
-        })
+        }
     }
 }
