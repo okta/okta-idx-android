@@ -24,6 +24,7 @@ import com.okta.idx.kotlin.client.IdxClientResult
 import com.okta.idx.kotlin.dto.IdxRemediation
 import com.okta.idx.kotlin.dto.IdxResponse
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 internal class DynamicAuthViewModel : ViewModel() {
     private val _state = MutableLiveData<DynamicAuthState>(DynamicAuthState.Loading)
@@ -103,17 +104,16 @@ internal class DynamicAuthViewModel : ViewModel() {
     }
 
     private fun IdxRemediation.Form.Field.asDynamicAuthFields(): List<DynamicAuthField> {
-        return when (type) {
-            "boolean" -> {
-                listOf(DynamicAuthField.CheckBox(label ?: "") {
-                    value = it
-                })
-            }
-            "object" -> {
+        return when (true) {
+            form?.visibleFields?.isNullOrEmpty() == false -> {
                 val result = mutableListOf<DynamicAuthField>()
                 form?.visibleFields?.forEach {
                     result += it.asDynamicAuthFields()
                 }
+                result
+            }
+            options?.isNullOrEmpty() == false -> {
+                val result = mutableListOf<DynamicAuthField>()
                 options?.let { options ->
                     result += DynamicAuthField.Options(options) {
                         selectedOption = it
@@ -122,10 +122,19 @@ internal class DynamicAuthViewModel : ViewModel() {
 
                 result
             }
-            else -> {
+            type == "boolean" -> {
+                listOf(DynamicAuthField.CheckBox(label ?: "") {
+                    value = it
+                })
+            }
+            type == "string" -> {
                 listOf(DynamicAuthField.Text(label ?: "", isRequired, isSecret) {
                     value = it
                 })
+            }
+            else -> {
+                Timber.d("Unknown field type: %s", this)
+                emptyList()
             }
         }
     }
