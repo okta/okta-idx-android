@@ -25,6 +25,7 @@ sealed class IdxRedirectResult {
      * The redirect resulted in a successful authentication, which concluded with tokens.
      */
     data class Tokens internal constructor(
+        /** The token response. */
         val response: TokenResponse,
     ) : IdxRedirectResult()
 
@@ -33,6 +34,7 @@ sealed class IdxRedirectResult {
      * interaction from the user.
      */
     data class InteractionRequired internal constructor(
+        /** The response representing the current state for the authentication transaction. */
         val response: IdxResponse,
     ) : IdxRedirectResult()
 
@@ -40,7 +42,9 @@ sealed class IdxRedirectResult {
      * There was an error when attempting to handle the redirect.
      */
     data class Error internal constructor(
+        /** The error message associated with the error. */
         val errorMessage: String,
+        /** The optional exception associated with the error. */
         val exception: Exception? = null,
     ) : IdxRedirectResult()
 }
