@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 
 cucumber_properties = Hash.new
 cucumber_properties['username'] = ENV['OKTA_CUCUMBER_USERNAME']
