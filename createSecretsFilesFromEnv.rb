@@ -28,6 +28,7 @@ yaml_properties['managementSdk'] = management_sdk_properties
 yaml_properties['a18n'] = a18n_properties
 
 File.write('app/src/androidTest/resources/e2eCredentials.yaml', yaml_properties.to_yaml)
+File.write('dynamic-app/src/androidTest/resources/e2eCredentials.yaml', yaml_properties.to_yaml)
 
 okta_properties = ''
 okta_properties += "issuer=#{ENV['OKTA_IDX_ISSUER']}\n"
