@@ -128,14 +128,14 @@ class DashboardDefinitions {
     @And("^the cell for the value of \"email\" is shown and contains her email$")
     fun the_cell_for_the_value_of_email_is_shown_and_contains_her_email() {
         Thread.sleep(1000)
-        claimViewInteraction("email", EndToEndCredentials["/cucumber/facebookEmail"])
+        claimViewInteraction("email", EndToEndCredentials["/cucumber/socialEmail"])
             .perform(scrollTo())
             .check(matches(isDisplayed()))
     }
 
     @And("^the cell for the value of \"name\" is shown and contains her first name and last name$")
     fun the_name_cell_contains_first_and_last_name() {
-        claimViewInteraction("name", EndToEndCredentials["/cucumber/facebookName"])
+        claimViewInteraction("name", EndToEndCredentials["/cucumber/socialName"])
             .perform(scrollTo())
             .check(matches(isDisplayed()))
     }

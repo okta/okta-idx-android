@@ -3,6 +3,7 @@ Feature: 6.2 Multi-Factor Authentication with Password and SMS
   @requireA18NProfile
   @requireExistingUser
   @requireMFAGroupsForUser
+  @requirePhoneGroupForUser
   Scenario: 6.2.1 Enroll in SMS Factor prompt when authenticating
     Given Mary navigates to the Basic Login View
     When she fills in her correct username for mfa
@@ -23,6 +24,7 @@ Feature: 6.2 Multi-Factor Authentication with Password and SMS
   @requireExistingUser
   @requireEnrolledPhone
   @requireMFAGroupsForUser
+  @requirePhoneGroupForUser
   Scenario: 6.2.2 2FA Login with SMS
     Given Mary navigates to the Basic Login View
     When she fills in her correct username for mfa
@@ -40,6 +42,7 @@ Feature: 6.2 Multi-Factor Authentication with Password and SMS
   @requireA18NProfile
   @requireExistingUser
   @requireMFAGroupsForUser
+  @requirePhoneGroupForUser
   Scenario: 6.2.3 Enroll with Invalid Phone Number
     Given Mary navigates to the Basic Login View
     When she fills in her correct username for mfa
@@ -56,6 +59,7 @@ Feature: 6.2 Multi-Factor Authentication with Password and SMS
   @requireA18NProfile
   @requireExistingUser
   @requireMFAGroupsForUser
+  @requirePhoneGroupForUser
   Scenario: 6.2.4 Mary enters a wrong verification code on verify
     Given Mary navigates to the Basic Login View
     When she fills in her correct username for mfa

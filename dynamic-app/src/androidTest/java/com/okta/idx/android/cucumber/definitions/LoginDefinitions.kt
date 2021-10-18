@@ -92,11 +92,11 @@ class LoginDefinitions {
         onView(withHint("Username")).check(matches(isDisplayed()))
     }
 
-    @Then("^she clicks the \"Login with Facebook\" button$")
-    fun she_clicks_the_login_with_facebook_button() {
-        waitForElementWithText("Login with FB IdP")
+    @Then("^she clicks the \"Login with Okta OIDC IdP\" button$")
+    fun she_clicks_the_login_with_okta_oidc_button() {
+        waitForElementWithText("Login with Okta OIDC IdP")
 
-        onView(withText("Login with FB IdP")).perform(click())
+        onView(withText("Login with Okta OIDC IdP")).perform(click())
     }
 
     @Given("^Mary navigates to the Self Service Registration View$")
