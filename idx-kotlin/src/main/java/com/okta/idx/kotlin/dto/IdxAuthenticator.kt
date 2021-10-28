@@ -65,6 +65,9 @@ class IdxAuthenticator internal constructor(
     /** The key name for the authenticator. */
     val key: String?,
 
+    /** The credentialId for the authenticator. */
+    val credentialId: String?,
+
     /** Indicates the state of this authenticator, either being an available authenticator, an enrolled authenticator, authenticating, or enrolling. */
     val state: State,
 

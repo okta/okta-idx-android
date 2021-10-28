@@ -15,6 +15,7 @@
  */
 package com.okta.idx.android.dynamic.auth
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.graphics.Color
@@ -24,14 +25,33 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.iterator
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.gms.fido.Fido
+import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions
+import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse
+import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse
+import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse
+import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria
+import com.google.android.gms.fido.fido2.api.common.FidoAppIdExtension
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameters
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOptions
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity
+import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity
+import com.google.android.gms.fido.fido2.api.common.UserVerificationMethodExtension
 import com.google.android.material.textfield.TextInputLayout
+import com.okta.idx.android.dynamic.BuildConfig
 import com.okta.idx.android.dynamic.R
 import com.okta.idx.android.dynamic.databinding.ErrorBinding
 import com.okta.idx.android.dynamic.databinding.ErrorFieldBinding
@@ -48,6 +68,11 @@ import com.okta.idx.android.dynamic.databinding.LoadingBinding
 import com.okta.idx.android.util.BaseFragment
 import com.okta.idx.android.util.bindText
 import com.okta.idx.android.util.inflateBinding
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okio.ByteString.Companion.decodeBase64
+import okio.ByteString.Companion.toByteString
 
 internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
     FragmentDynamicAuthBinding::inflate
@@ -61,6 +86,16 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
             }
         }
     })
+
+    private val createCredentialIntentLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+        ::handleCreateCredentialEnrollmentResult
+    )
+
+    private val challengeCredentialIntentLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+        ::handleChallengeCredentialResult
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -184,7 +219,9 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 optionsBinding.labelTextView.text = label
                 optionsBinding.labelTextView.visibility = if (label == null) View.GONE else View.VISIBLE
                 for (option in options) {
-                    val optionBinding = optionsBinding.radioGroup.inflateBinding(FormOptionBinding::inflate, attachToParent = true)
+                    val optionBinding = optionsBinding.radioGroup.inflateBinding(
+                        FormOptionBinding::inflate, attachToParent = true
+                    )
                     optionBinding.radioButton.id = View.generateViewId()
                     optionBinding.radioButton.text = option.label
                     optionBinding.radioButton.setTag(R.id.option, option)
@@ -231,6 +268,155 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 binding.labelTextView.text = label
                 binding.root
             }
+            is DynamicAuthField.SecurityKeyEnrollment -> {
+                val actionBinding = binding.formContent.inflateBinding(FormActionPrimaryBinding::inflate)
+                actionBinding.button.text = "Register biometric"
+                actionBinding.button.setOnClickListener {
+                    val fido2ApiClient = Fido.getFido2ApiClient(binding.formContent.context)
+                    val options = PublicKeyCredentialCreationOptions.Builder()
+                        .setChallenge(trait.challenge.decodeBase64()?.toByteArray())
+                        .setAuthenticatorSelection(
+                            AuthenticatorSelectionCriteria.Builder()
+                                .setRequireResidentKey(trait.authenticatorSelection.requireResidentKey)
+                                .build()
+                        )
+                        .setParameters(
+                            trait.publicKeyCredentialParameters.map {
+                                PublicKeyCredentialParameters(it.type, it.algorithm)
+                            }
+                        )
+                        .setRp(
+                            PublicKeyCredentialRpEntity(
+                                BuildConfig.ISSUER.toHttpUrl().host,
+                                trait.relyingParty.name,
+                                null,
+                            )
+                        )
+                        .setUser(
+                            PublicKeyCredentialUserEntity(
+                                trait.user.id.toByteArray(),
+                                trait.user.name,
+                                null,
+                                trait.user.displayName,
+                            )
+                        )
+                        .build()
+                    val task = fido2ApiClient.getRegisterPendingIntent(options)
+                    lifecycleScope.launch {
+                        val intent = task.await()
+                        createCredentialIntentLauncher.launch(
+                            IntentSenderRequest.Builder(intent).build()
+                        )
+                    }
+                }
+                actionBinding.root
+            }
+            is DynamicAuthField.SecurityKeyChallenge -> {
+                // TODO: I've never tested this.
+                val actionBinding = binding.formContent.inflateBinding(FormActionPrimaryBinding::inflate)
+                actionBinding.button.text = "Verify biometric"
+                actionBinding.button.setOnClickListener {
+                    val fido2ApiClient = Fido.getFido2ApiClient(binding.formContent.context)
+                    val options = PublicKeyCredentialRequestOptions.Builder()
+                        .setChallenge(trait.challenge.decodeBase64()?.toByteArray())
+                        .setRpId(BuildConfig.ISSUER.toHttpUrl().host)
+//                    .setAllowList(PublicKeyCredentialDescriptor())
+                        .setAuthenticationExtensions(
+                            AuthenticationExtensions.Builder()
+                                .setFido2Extension(FidoAppIdExtension(trait.appId))
+                                .setUserVerificationMethodExtension(
+                                    UserVerificationMethodExtension(trait.userVerification != "discouraged")
+                                )
+                                .build()
+                        )
+                        .build()
+                    val task = fido2ApiClient.getSignPendingIntent(options)
+                    lifecycleScope.launch {
+                        val intent = task.await()
+                        challengeCredentialIntentLauncher.launch(
+                            IntentSenderRequest.Builder(intent).build()
+                        )
+                    }
+                }
+                actionBinding.root
+            }
         }
+    }
+
+    private fun handleCreateCredentialEnrollmentResult(activityResult: ActivityResult) {
+        val bytes = activityResult.data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
+        when {
+            activityResult.resultCode != Activity.RESULT_OK ->
+                Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_LONG).show()
+            bytes == null ->
+                Toast.makeText(requireContext(), "Credential Error", Toast.LENGTH_LONG)
+                    .show()
+            else -> {
+                val credential = PublicKeyCredential.deserializeFromBytes(bytes)
+                val response = credential.response
+                if (response is AuthenticatorErrorResponse) {
+                    Toast.makeText(requireContext(), response.errorMessage, Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    handlePublicKeyCredentialEnrollment(credential)
+                }
+            }
+        }
+    }
+
+    private fun handleChallengeCredentialResult(activityResult: ActivityResult) {
+        val bytes = activityResult.data?.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)
+        when {
+            activityResult.resultCode != Activity.RESULT_OK ->
+                Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_LONG).show()
+            bytes == null ->
+                Toast.makeText(requireContext(), "Credential Error", Toast.LENGTH_LONG)
+                    .show()
+            else -> {
+                val credential = PublicKeyCredential.deserializeFromBytes(bytes)
+                val response = credential.response
+                if (response is AuthenticatorErrorResponse) {
+                    Toast.makeText(requireContext(), response.errorMessage, Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    handlePublicKeyCredentialChallenge(credential)
+                }
+            }
+        }
+    }
+
+    // TODO: I'm guessing much of this file can be de-duped.
+    private fun handlePublicKeyCredentialEnrollment(credential: PublicKeyCredential) {
+        val state = viewModel.state.value as? DynamicAuthState.Form? ?: return
+        val field = state.fields.firstOrNull { it is DynamicAuthField.SecurityKeyEnrollment } ?: return
+        val securityKeyEnrollment = field as? DynamicAuthField.SecurityKeyEnrollment ?: return
+        val response = credential.response as? AuthenticatorAttestationResponse ?: return
+
+        val attestation = response.attestationObject.toBase64()
+        val clientData = response.clientDataJSON.toBase64()
+        securityKeyEnrollment.remediation["credentials.attestation"]?.value = attestation
+        securityKeyEnrollment.remediation["credentials.clientData"]?.value = clientData
+
+        securityKeyEnrollment.onComplete()
+    }
+
+    private fun handlePublicKeyCredentialChallenge(credential: PublicKeyCredential) {
+        val state = viewModel.state.value as? DynamicAuthState.Form? ?: return
+        val field = state.fields.firstOrNull { it is DynamicAuthField.SecurityKeyChallenge } ?: return
+        val securityKeyChallenge = field as? DynamicAuthField.SecurityKeyChallenge ?: return
+        val response = credential.response as? AuthenticatorAssertionResponse ?: return
+
+        val authenticatorData = response.authenticatorData.toBase64()
+        val clientData = response.clientDataJSON.toBase64()
+        val signatureData = response.signature.toBase64()
+        securityKeyChallenge.remediation["credentials.authenticatorData"]?.value = authenticatorData
+        securityKeyChallenge.remediation["credentials.clientData"]?.value = clientData
+        securityKeyChallenge.remediation["credentials.signatureData"]?.value = signatureData
+
+        securityKeyChallenge.onComplete()
+    }
+
+    private fun ByteArray.toBase64(): String {
+        return toByteString().base64Url().removeSuffix("=")
     }
 }

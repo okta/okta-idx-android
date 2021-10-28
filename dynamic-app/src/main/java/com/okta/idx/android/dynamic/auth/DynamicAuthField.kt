@@ -21,6 +21,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.okta.idx.android.util.emitValidation
 import com.okta.idx.kotlin.dto.IdxRemediation
+import com.okta.idx.kotlin.dto.IdxSecurityKeyChallengeCapability
+import com.okta.idx.kotlin.dto.IdxSecurityKeyEnrollmentCapability
 
 /**
  * Data model classes representing `IdxRemediation` as a View Model. */
@@ -136,6 +138,18 @@ sealed class DynamicAuthField {
      */
     data class Label(
         val label: String,
+    ) : DynamicAuthField()
+
+    data class SecurityKeyEnrollment(
+        val trait: IdxSecurityKeyEnrollmentCapability,
+        val remediation: IdxRemediation,
+        val onComplete: () -> Unit
+    ) : DynamicAuthField()
+
+    data class SecurityKeyChallenge(
+        val trait: IdxSecurityKeyChallengeCapability,
+        val remediation: IdxRemediation,
+        val onComplete: () -> Unit
     ) : DynamicAuthField()
 
     open fun validate(): Boolean {

@@ -86,11 +86,13 @@ dependencies {
     implementation deps.lifecycle.java8
     implementation deps.material
     implementation deps.coroutines.android
+    implementation deps.coroutines.play_services
     implementation deps.okhttp.core
     implementation deps.okhttp.tls
     implementation deps.okhttp.mock_web_server
     implementation deps.junit // Mock Web Server depends on junit :(
     implementation deps.timber
+    implementation deps.fido_play_services
 
     implementation deps.jackson_databind
 

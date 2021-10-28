@@ -251,4 +251,48 @@ class IdxResponseTest {
         val requestJson = remediation.toJsonContent().toString()
         assertThat(requestJson).isEqualTo("""{"stateHandle":"029ZAB"}""")
     }
+
+    @Test fun testSecurityKeyEnroll() {
+        val idxResponse = getIdxResponse("security_key_enroll.json")
+
+        val remediation = idxResponse.remediations.first()
+        val authenticator = remediation.authenticators.first()
+        val trait = authenticator.capabilities.get<IdxSecurityKeyEnrollmentCapability>()!!
+
+        assertThat(trait.challenge).isEqualTo("2QPgcQRDljHQJgkMmgU-MdE3qtU")
+        assertThat(trait.attestation).isEqualTo("direct")
+
+        assertThat(trait.relyingParty.name).isEqualTo("Android IDX SDK Test Org")
+
+        assertThat(trait.user.id).isEqualTo("00fooOKB5d7")
+        assertThat(trait.user.name).isEqualTo("jaynewstrom@gmail.com")
+        assertThat(trait.user.displayName).isEqualTo("jay newstrom")
+
+        assertThat(trait.publicKeyCredentialParameters).hasSize(2)
+        assertThat(trait.publicKeyCredentialParameters[0].type).isEqualTo("public-key")
+        assertThat(trait.publicKeyCredentialParameters[0].algorithm).isEqualTo(-7)
+        assertThat(trait.publicKeyCredentialParameters[1].type).isEqualTo("public-key")
+        assertThat(trait.publicKeyCredentialParameters[1].algorithm).isEqualTo(-257)
+
+        assertThat(trait.authenticatorSelection.userVerification).isEqualTo("discouraged")
+        assertThat(trait.authenticatorSelection.requireResidentKey).isEqualTo(false)
+
+        assertThat(trait.u2fParameters.appId).isEqualTo("https://foo.okta.com")
+
+        // TODO: Test excludesCredentials...
+    }
+
+    @Test fun testSecurityKeyChallenge() {
+        val idxResponse = getIdxResponse("security_key_challenge.json")
+
+        val remediation = idxResponse.remediations.first()
+        val authenticator = remediation.authenticators.first()
+        val trait = authenticator.capabilities.get<IdxSecurityKeyChallengeCapability>()!!
+
+        assertThat(trait.challenge).isEqualTo("V388ixDNlya9QRigFT6kGdyhTgs")
+        assertThat(trait.userVerification).isEqualTo("preferred")
+        assertThat(trait.appId).isEqualTo("https://foo.okta.com")
+
+        assertThat(idxResponse.authenticators.enrolled[1].credentialId).isEqualTo("LJapz1GhkA6cZNSuf1x")
+    }
 }

@@ -39,6 +39,7 @@ public final class com/okta/idx/kotlin/dto/IdxApplication {
 
 public final class com/okta/idx/kotlin/dto/IdxAuthenticator {
 	public final fun getCapabilities ()Lcom/okta/idx/kotlin/dto/IdxCapabilityCollection;
+	public final fun getCredentialId ()Ljava/lang/String;
 	public final fun getDisplayName ()Ljava/lang/String;
 	public final fun getId ()Ljava/lang/String;
 	public final fun getKey ()Ljava/lang/String;
@@ -395,6 +396,53 @@ public final class com/okta/idx/kotlin/dto/IdxResponse$Intent : java/lang/Enum {
 	public static final field UNKNOWN Lcom/okta/idx/kotlin/dto/IdxResponse$Intent;
 	public static fun valueOf (Ljava/lang/String;)Lcom/okta/idx/kotlin/dto/IdxResponse$Intent;
 	public static fun values ()[Lcom/okta/idx/kotlin/dto/IdxResponse$Intent;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyChallengeCapability : com/okta/idx/kotlin/dto/IdxAuthenticator$Capability {
+	public final fun getAppId ()Ljava/lang/String;
+	public final fun getChallenge ()Ljava/lang/String;
+	public final fun getUserVerification ()Ljava/lang/String;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability : com/okta/idx/kotlin/dto/IdxAuthenticator$Capability {
+	public final fun getAttestation ()Ljava/lang/String;
+	public final fun getAuthenticatorSelection ()Lcom/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$AuthenticatorSelection;
+	public final fun getChallenge ()Ljava/lang/String;
+	public final fun getExcludeCredentials ()Ljava/util/List;
+	public final fun getPublicKeyCredentialParameters ()Ljava/util/List;
+	public final fun getRelyingParty ()Lcom/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$RelyingParty;
+	public final fun getU2fParameters ()Lcom/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$U2fParameters;
+	public final fun getUser ()Lcom/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$User;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$AuthenticatorSelection {
+	public final fun getRequireResidentKey ()Z
+	public final fun getUserVerification ()Ljava/lang/String;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$ExcludeCredential {
+	public final fun getId ()Ljava/lang/String;
+	public final fun getTransport ()Ljava/util/List;
+	public final fun getType ()Ljava/lang/String;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$PublicKeyCredentialParameter {
+	public final fun getAlgorithm ()I
+	public final fun getType ()Ljava/lang/String;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$RelyingParty {
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$U2fParameters {
+	public final fun getAppId ()Ljava/lang/String;
+}
+
+public final class com/okta/idx/kotlin/dto/IdxSecurityKeyEnrollmentCapability$User {
+	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
 }
 
 public final class com/okta/idx/kotlin/dto/IdxSendCapability : com/okta/idx/kotlin/dto/IdxAuthenticator$Capability {
