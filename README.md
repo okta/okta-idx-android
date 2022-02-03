@@ -6,6 +6,7 @@ This repository contains an SDK written in Kotlin for the Okta Identity Engine, 
 idx-kotlin on Android.
 
 * [Introduction](#introduction)
+* [Installation](#installation)
 * [Need help?](#need-help)
 * [IDX Kotlin SDK Documentation](#idx-kotlin-sdk-documentation)
 * [Getting started](#installation--running-the-app)
@@ -15,6 +16,16 @@ idx-kotlin on Android.
 > :grey_exclamation: This SDK requires usage of the Okta Identity Engine.
 This functionality is in [General Availability](https://developer.okta.com/docs/reference/releases-at-okta/#general-availability-ga) but is being gradually rolled out to customers. If you want to gain access to the Okta Identity Engine, please reach out to your account manager. If you
 do not have an account manager, please reach out to oie@okta.com for more information.
+
+## Installation
+
+Add the `Okta IDX Kotlin` dependency to your `build.gradle` file:
+
+```gradle
+implementation 'com.okta.android:okta-idx-kotlin:1.0.0'
+```
+
+See the [CHANGELOG](CHANGELOG.md) for the most recent changes.
 
 ## Need help?
 
