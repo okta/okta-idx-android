@@ -32,14 +32,14 @@ import io.cucumber.java.en.Then
 import timber.log.Timber
 
 internal class SocialDefinitions {
-    @Before("@logOutOfFacebook", order = 0)
+    @Before("@logOutOfSocialIdP", order = 0)
     fun logOutOfFacebook() {
         execShellCommand("pm clear com.android.chrome")
 
         Thread.sleep(2000)
 
         val application = ApplicationProvider.getApplicationContext<Application>()
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://facebook.com"))
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://okta.com"))
         browserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         application.startActivity(browserIntent)
 
@@ -56,20 +56,20 @@ internal class SocialDefinitions {
         }
 
         Thread.sleep(2000)
-        execShellCommand("stop com.android.chrome")
+        execShellCommand("am force-stop com.android.chrome")
         Thread.sleep(2000)
     }
 
-    @And("^logs in to Facebook$") fun logs_in_to_facebook() {
-        fillInEditText("m_login_email", EndToEndCredentials["/cucumber/facebookEmail"])
-        fillInEditText("m_login_password", EndToEndCredentials["/cucumber/facebookPassword"])
-        clickButtonWithText("Log In")
+    @And("^logs in to Okta OIDC$") fun logs_in_to_okta_oidc() {
+        fillInEditText("input28", EndToEndCredentials["/cucumber/socialEmail"])
+        fillInEditText("input36", EndToEndCredentials["/cucumber/socialPassword"])
+        clickButtonWithText("Sign in")
     }
 
-    @And("^logs in to Facebook with MFA User") fun logs_in_to_facebook_with_mfa_user() {
-        fillInEditText("m_login_email", EndToEndCredentials["/cucumber/facebookEmailMfa"])
-        fillInEditText("m_login_password", EndToEndCredentials["/cucumber/facebookPasswordMfa"])
-        clickButtonWithText("Log In")
+    @And("^logs in to Okta OIDC with MFA User$") fun logs_in_to_okta_oidc_with_mfa_user() {
+        fillInEditText("input28", EndToEndCredentials["/cucumber/socialEmailMfa"])
+        fillInEditText("input36", EndToEndCredentials["/cucumber/socialPasswordMfa"])
+        clickButtonWithText("Sign in")
     }
 
     @Then("^Mary should see a page to select an authenticator for MFA$")

@@ -28,6 +28,7 @@ import com.okta.idx.android.infrastructure.SIGN_OUT_BUTTON
 import com.okta.idx.android.infrastructure.USERNAME_EDIT_TEXT
 import com.okta.idx.android.infrastructure.espresso.selectAuthenticator
 import com.okta.idx.android.infrastructure.espresso.waitForElement
+import com.okta.idx.android.infrastructure.espresso.waitForElementWithText
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -83,10 +84,10 @@ class LoginDefinitions {
         onView(withId(R.id.title_text_view)).check(matches(withText("Forgot Password")))
     }
 
-    @Then("^she clicks the \"Login with Facebook\" button$")
-    fun she_clicks_the_login_with_facebook_button() {
-        waitForElement(USERNAME_EDIT_TEXT)
+    @Then("^she clicks the \"Login with Okta OIDC IdP\" button$")
+    fun she_clicks_the_login_with_okta_oidc_button() {
+        waitForElementWithText("Login With Oidc")
 
-        selectAuthenticator("Login With Facebook")
+        selectAuthenticator("Login With Oidc")
     }
 }

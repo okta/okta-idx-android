@@ -129,4 +129,10 @@ class MfaDefinitions {
         waitForElement(SKIP_BUTTON)
         onView(withId(R.id.skip_button)).perform(click())
     }
+
+    @When("^she selects skip$")
+    fun she_selects_skip() {
+        waitForElement(SKIP_BUTTON)
+        onView(withId(R.id.skip_button)).perform(click())
+    }
 }
