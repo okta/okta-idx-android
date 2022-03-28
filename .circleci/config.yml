@@ -4,12 +4,13 @@ jobs:
   build:
     docker:
       - image: cimg/android:2021.10.2
-    resource_class: xlarge
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
       - checkout
       - run:
           name: Build
-          command: ./gradlew build assembleAndroidTest testDebugUnitTest --parallel
+          command: ./gradlew build assembleAndroidTest testDebugUnitTest
 
 workflows:
   build_and_test:
