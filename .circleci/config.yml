@@ -5,6 +5,7 @@ jobs:
     docker:
       - image: cimg/android:2021.10.2
     steps:
+      - checkout
       - run:
           name: Build
           command: ./gradlew build assembleAndroidTest testDebugUnitTest --parallel
