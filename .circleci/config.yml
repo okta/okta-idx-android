@@ -4,6 +4,8 @@ jobs:
   build:
     docker:
       - image: cimg/android:2021.10.2
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
       - checkout
       - run:
