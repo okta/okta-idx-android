@@ -11,6 +11,7 @@ jobs:
       - run:
           name: Setup E2E test credentials
           command: |
+            mkdir -p dynamic-app/src/androidTest/resources
             echo $E2E_CREDENTIALS_BASE64 | base64 --decode > dynamic-app/src/androidTest/resources/e2eCredentials.yaml
             echo $OKTA_PROPERTIES_BASE64 | base64 --decode > okta.properties
             echo $GOOGLE_SERVICE_JSON_BASE64 | base64 --decode > ${HOME}/gcloud-service-key.json
