@@ -59,7 +59,7 @@ class MfaDefinitions {
     @When("^she selects Email$")
     fun she_selects_email() {
         selectAuthenticator("Email")
-        onView(withText("Choose")).perform(click())
+        onView(withText("Continue")).perform(click())
     }
 
     @Then("^she is presented with a list of factors$")
