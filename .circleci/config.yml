@@ -21,6 +21,7 @@ jobs:
       - run:
           name: E2E Test
           command: ./runTestsInFirebaseTestLab.sh
+          no_output_timeout: 25m
 
 workflows:
   build_and_test:
