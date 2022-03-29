@@ -9,8 +9,19 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Setup E2E test credentials
+          command: |
+            echo $E2E_CREDENTIALS_BASE64 | base64 --decode > dynamic-app/src/androidTest/resources/e2eCredentials.yaml
+            echo $OKTA_PROPERTIES_BASE64 | base64 --decode > okta.properties
+            echo $GOOGLE_SERVICE_JSON_BASE64 | base64 --decode > ${HOME}/gcloud-service-key.json
+            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
           name: Build
           command: ./gradlew build assembleAndroidTest testDebugUnitTest
+      - run:
+          name: E2E Test
+          command: ./runTestsInFirebaseTestLab.sh
 
 workflows:
   build_and_test:
