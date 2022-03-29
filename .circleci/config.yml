@@ -14,9 +14,7 @@ jobs:
             mkdir -p dynamic-app/src/androidTest/resources
             echo $E2E_CREDENTIALS_BASE64 | base64 --decode > dynamic-app/src/androidTest/resources/e2eCredentials.yaml
             echo $OKTA_PROPERTIES_BASE64 | base64 --decode > okta.properties
-            echo $GOOGLE_SERVICE_JSON_BASE64 | base64 --decode > ${HOME}/gcloud-service-key.json
-            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            ./signInToGcloud.sh && source $HOME/google-cloud-sdk/path.bash.inc && export CLOUDSDK_CORE_DISABLE_PROMPTS=1
       - run:
           name: Build
           command: ./gradlew build assembleAndroidTest testDebugUnitTest
