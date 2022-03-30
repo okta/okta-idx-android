@@ -369,7 +369,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Proceed to the next step in IDX flow using the current remediation
+     * Proceed to the next step in the IDX flow using the specified remediation.
      */
     private fun proceed(remediation: IdxRemediation) {
         cancelPolling()
