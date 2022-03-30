@@ -15,42 +15,29 @@
  */
 package com.okta.idx.android.dynamic.auth
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.graphics.Color
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.iterator
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputLayout
 import com.okta.idx.android.dashboard.TokenViewModel
 import com.okta.idx.android.dynamic.R
-import com.okta.idx.android.dynamic.databinding.ErrorBinding
-import com.okta.idx.android.dynamic.databinding.ErrorFieldBinding
-import com.okta.idx.android.dynamic.databinding.FormActionPrimaryBinding
-import com.okta.idx.android.dynamic.databinding.FormCheckBoxBinding
-import com.okta.idx.android.dynamic.databinding.FormImageBinding
-import com.okta.idx.android.dynamic.databinding.FormOptionBinding
-import com.okta.idx.android.dynamic.databinding.FormOptionsBinding
-import com.okta.idx.android.dynamic.databinding.FormTextBinding
-import com.okta.idx.android.dynamic.databinding.FragmentDynamicAuthBinding
-import com.okta.idx.android.dynamic.databinding.LoadingBinding
+import com.okta.idx.android.dynamic.databinding.*
 import com.okta.idx.android.util.BaseFragment
 import com.okta.idx.android.util.bindText
 import com.okta.idx.android.util.inflateBinding
-
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.widget.RadioGroup
-import android.widget.Toast
-
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.iterator
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.navArgs
-import com.okta.idx.android.dynamic.databinding.FormLabelBinding
-import com.okta.idx.android.dynamic.databinding.FormOptionNestedBinding
 
 internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
     FragmentDynamicAuthBinding::inflate
@@ -72,6 +59,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
             when (state) {
                 is DynamicAuthState.Form -> {
                     addMessageViews(state.messages)
+                    // if there are dynamic fields remove current view, iterate through fields and render them
                     binding.formContent.removeAllViews()
                     for (field in state.fields) {
                         binding.formContent.addView(field.createView())
@@ -83,6 +71,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 DynamicAuthState.Loading -> {
                     addLoadingView()
                 }
+                // if login is success, update the TokenViewModel and switch to DashboardFragment
                 is DynamicAuthState.Tokens -> {
                     TokenViewModel._tokenResponse = state.tokenResponse
                     findNavController().navigate(DynamicAuthFragmentDirections.dynamicAuthToDashboard())
@@ -121,14 +110,19 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
         parent.addView(binding.root)
     }
 
+    /**
+     * Render IdxDynamicFields dynamically on the given view
+     */
     private fun DynamicAuthField.createView(): View {
         return when (this) {
+            // render text fields
             is DynamicAuthField.Text -> {
                 val textBinding = binding.formContent.inflateBinding(FormTextBinding::inflate)
 
                 textBinding.textInputLayout.hint = label
 
                 if (isSecure) {
+                    // password or sensitive fields
                     textBinding.textInputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
                     textBinding.editText.inputType = EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
                     textBinding.editText.transformationMethod = PasswordTransformationMethod.getInstance()
@@ -144,6 +138,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
 
                 textBinding.root
             }
+            // render checkboxes
             is DynamicAuthField.CheckBox -> {
                 val actionBinding = binding.formContent.inflateBinding(FormCheckBoxBinding::inflate)
                 actionBinding.checkbox.text = label
@@ -153,12 +148,14 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 }
                 actionBinding.root
             }
+            // render actions as buttons
             is DynamicAuthField.Action -> {
                 val actionBinding = binding.formContent.inflateBinding(FormActionPrimaryBinding::inflate)
                 actionBinding.button.text = label
                 actionBinding.button.setOnClickListener { onClick(requireContext()) }
                 actionBinding.root
             }
+            // render radio groups for authenticator selection
             is DynamicAuthField.Options -> {
                 fun showSelectedContent(group: RadioGroup) {
                     for (view in group) {
@@ -182,7 +179,8 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                     optionBinding.radioButton.id = View.generateViewId()
                     optionBinding.radioButton.text = option.label
                     optionBinding.radioButton.setTag(R.id.option, option)
-                    val nestedContentBinding = optionsBinding.radioGroup.inflateBinding(FormOptionNestedBinding::inflate, attachToParent = true)
+                    val nestedContentBinding =
+                        optionsBinding.radioGroup.inflateBinding(FormOptionNestedBinding::inflate, attachToParent = true)
                     optionBinding.radioButton.setTag(R.id.nested_content, nestedContentBinding.root)
                     for (field in option.fields) {
                         nestedContentBinding.nestedContent.addView(field.createView())
@@ -202,6 +200,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 showSelectedContent(optionsBinding.radioGroup)
                 optionsBinding.root
             }
+            // render image for authenticator QR code
             is DynamicAuthField.Image -> {
                 val imageBinding = binding.formContent.inflateBinding(FormImageBinding::inflate)
                 imageBinding.labelTextView.text = label
@@ -217,6 +216,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 }
                 imageBinding.root
             }
+            // render labels
             is DynamicAuthField.Label -> {
                 val binding = binding.formContent.inflateBinding(FormLabelBinding::inflate)
                 binding.labelTextView.text = label

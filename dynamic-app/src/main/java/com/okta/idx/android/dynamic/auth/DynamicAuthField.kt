@@ -22,7 +22,14 @@ import androidx.lifecycle.MutableLiveData
 import com.okta.idx.android.util.emitValidation
 import com.okta.idx.kotlin.dto.IdxRemediation
 
+/**
+ * Data model classes to hold dynamic fields sent in remediation by IDX SDK response
+ * Fields sent are: Text fields, password fields, QR Codes, checkbox, options, labels and action buttons)
+ */
 sealed class DynamicAuthField {
+    /**
+     * Text class holds text and password fields. Supports inline validation
+     */
     data class Text(
         val label: String,
         val isRequired: Boolean,
@@ -40,14 +47,17 @@ sealed class DynamicAuthField {
             }
 
         override fun validate(): Boolean {
-            if (isRequired) {
-                return _errorsLiveData.emitValidation { value.isNotEmpty() }
+            return if (isRequired) {
+                _errorsLiveData.emitValidation { value.isNotEmpty() }
             } else {
-                return true
+                true
             }
         }
     }
 
+    /**
+     * Checkbox class holds boolean fields
+     */
     data class CheckBox(
         val label: String,
         private val valueUpdater: (Boolean) -> Unit
@@ -59,6 +69,11 @@ sealed class DynamicAuthField {
             }
     }
 
+    /**
+     * Options class holds nested radio buttons, usually used for authenticator selection and so on.
+     * Selection state is maintained on the IdxRemediation.Form.Field instance
+     * Supports inline validation
+     */
     data class Options(
         val label: String?,
         val options: List<Option>,
@@ -86,7 +101,7 @@ sealed class DynamicAuthField {
             }
 
         override fun validate(): Boolean {
-            if (isRequired) {
+            return if (isRequired) {
                 val nestedFieldsAreValid: Boolean = options.flatMap { option ->
                     option.fields.map { field ->
                         field.validate()
@@ -94,24 +109,33 @@ sealed class DynamicAuthField {
                 }.reduce { acc, b ->
                     acc && b
                 }
-                return _errorsLiveData.emitValidation { option != null } && nestedFieldsAreValid
+                _errorsLiveData.emitValidation { option != null } && nestedFieldsAreValid
             } else {
-                return true
+                true
             }
         }
     }
 
+    /**
+     * Action class holds actions sent by remediations and are usually rendered as buttons
+     */
     data class Action(
         val label: String,
         val onClick: (context: Context) -> Unit
     ) : DynamicAuthField()
 
+    /**
+     * Image holds bitmap QR code data sent for an authenticator enrollment in remediation
+     */
     data class Image(
         val label: String,
         val bitmap: Bitmap,
         val sharedSecret: String?,
     ) : DynamicAuthField()
 
+    /**
+     * Label holds label values from number challenges
+     */
     data class Label(
         val label: String,
     ) : DynamicAuthField()
