@@ -34,7 +34,18 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputLayout
 import com.okta.idx.android.dashboard.TokenViewModel
 import com.okta.idx.android.dynamic.R
-import com.okta.idx.android.dynamic.databinding.*
+import com.okta.idx.android.dynamic.databinding.ErrorBinding
+import com.okta.idx.android.dynamic.databinding.ErrorFieldBinding
+import com.okta.idx.android.dynamic.databinding.FormActionPrimaryBinding
+import com.okta.idx.android.dynamic.databinding.FormCheckBoxBinding
+import com.okta.idx.android.dynamic.databinding.FormImageBinding
+import com.okta.idx.android.dynamic.databinding.FormLabelBinding
+import com.okta.idx.android.dynamic.databinding.FormOptionBinding
+import com.okta.idx.android.dynamic.databinding.FormOptionNestedBinding
+import com.okta.idx.android.dynamic.databinding.FormOptionsBinding
+import com.okta.idx.android.dynamic.databinding.FormTextBinding
+import com.okta.idx.android.dynamic.databinding.FragmentDynamicAuthBinding
+import com.okta.idx.android.dynamic.databinding.LoadingBinding
 import com.okta.idx.android.util.BaseFragment
 import com.okta.idx.android.util.bindText
 import com.okta.idx.android.util.inflateBinding
@@ -59,7 +70,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
             when (state) {
                 is DynamicAuthState.Form -> {
                     addMessageViews(state.messages)
-                    // if there are dynamic fields remove current view, iterate through fields and render them
+                    // If there are dynamic fields, remove current view, iterate through fields, and render them.
                     binding.formContent.removeAllViews()
                     for (field in state.fields) {
                         binding.formContent.addView(field.createView())
@@ -71,7 +82,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 DynamicAuthState.Loading -> {
                     addLoadingView()
                 }
-                // if login is success, update the TokenViewModel and switch to DashboardFragment
+                // If login is success, update the TokenViewModel and switch to DashboardFragment.
                 is DynamicAuthState.Tokens -> {
                     TokenViewModel._tokenResponse = state.tokenResponse
                     findNavController().navigate(DynamicAuthFragmentDirections.dynamicAuthToDashboard())
@@ -111,18 +122,18 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
     }
 
     /**
-     * Render IdxDynamicFields dynamically on the given view
+     * Render IdxDynamicFields dynamically on the given view.
      */
     private fun DynamicAuthField.createView(): View {
         return when (this) {
-            // render text fields
+            // Render text fields.
             is DynamicAuthField.Text -> {
                 val textBinding = binding.formContent.inflateBinding(FormTextBinding::inflate)
 
                 textBinding.textInputLayout.hint = label
 
                 if (isSecure) {
-                    // password or sensitive fields
+                    // Set properties for password or sensitive fields.
                     textBinding.textInputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
                     textBinding.editText.inputType = EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
                     textBinding.editText.transformationMethod = PasswordTransformationMethod.getInstance()
@@ -138,7 +149,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
 
                 textBinding.root
             }
-            // render checkboxes
+            // Render checkboxes.
             is DynamicAuthField.CheckBox -> {
                 val actionBinding = binding.formContent.inflateBinding(FormCheckBoxBinding::inflate)
                 actionBinding.checkbox.text = label
@@ -148,14 +159,14 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 }
                 actionBinding.root
             }
-            // render actions as buttons
+            // Render actions as buttons.
             is DynamicAuthField.Action -> {
                 val actionBinding = binding.formContent.inflateBinding(FormActionPrimaryBinding::inflate)
                 actionBinding.button.text = label
                 actionBinding.button.setOnClickListener { onClick(requireContext()) }
                 actionBinding.root
             }
-            // render radio groups for authenticator selection
+            // Render radio groups for authenticator selection.
             is DynamicAuthField.Options -> {
                 fun showSelectedContent(group: RadioGroup) {
                     for (view in group) {
@@ -216,7 +227,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 }
                 imageBinding.root
             }
-            // render labels
+            // Render labels.
             is DynamicAuthField.Label -> {
                 val binding = binding.formContent.inflateBinding(FormLabelBinding::inflate)
                 binding.labelTextView.text = label

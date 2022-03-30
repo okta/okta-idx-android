@@ -23,12 +23,12 @@ import com.okta.idx.android.util.emitValidation
 import com.okta.idx.kotlin.dto.IdxRemediation
 
 /**
- * Data model classes to hold dynamic fields sent in remediation by IDX SDK response
- * Fields sent are: Text fields, password fields, QR Codes, checkbox, options, labels and action buttons)
+ * Data model classes to hold dynamic fields sent in remediation by IDX SDK response.
+ * Fields sent are: Text fields, password fields, QR Codes, checkbox, options, labels and action buttons).
  */
 sealed class DynamicAuthField {
     /**
-     * Text class holds text and password fields. Supports inline validation
+     * Text class holds text and password fields. Supports inline validation.
      */
     data class Text(
         val label: String,
@@ -56,7 +56,7 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * Checkbox class holds boolean fields
+     * Checkbox class holds boolean fields.
      */
     data class CheckBox(
         val label: String,
@@ -71,8 +71,8 @@ sealed class DynamicAuthField {
 
     /**
      * Options class holds nested radio buttons, usually used for authenticator selection and so on.
-     * Selection state is maintained on the IdxRemediation.Form.Field instance
-     * Supports inline validation
+     * Selection state is maintained on the IdxRemediation.Form.Field instance.
+     * Supports inline validation.
      */
     data class Options(
         val label: String?,
@@ -117,7 +117,7 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * Action class holds actions sent by remediations and are usually rendered as buttons
+     * Action class holds actions sent by remediations and are usually rendered as buttons.
      */
     data class Action(
         val label: String,
@@ -125,7 +125,7 @@ sealed class DynamicAuthField {
     ) : DynamicAuthField()
 
     /**
-     * Image holds bitmap QR code data sent for an authenticator enrollment in remediation
+     * Image holds bitmap QR code data sent for an authenticator enrollment in remediation.
      */
     data class Image(
         val label: String,
@@ -134,7 +134,7 @@ sealed class DynamicAuthField {
     ) : DynamicAuthField()
 
     /**
-     * Label holds label values from number challenges
+     * Label holds label values from number challenges.
      */
     data class Label(
         val label: String,
