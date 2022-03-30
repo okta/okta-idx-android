@@ -20,7 +20,7 @@ import com.okta.idx.kotlin.client.IdxClientConfiguration
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 /**
- * Provides OKTA org configurations for IDX client
+ * Provides Okta organization configuration for IDX client.
  */
 internal object IdxClientConfigurationProvider {
     fun get(): IdxClientConfiguration {
