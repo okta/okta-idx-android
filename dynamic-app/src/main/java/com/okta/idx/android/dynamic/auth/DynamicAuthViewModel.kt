@@ -163,7 +163,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
             }
             fields += remediation.asDynamicAuthFieldResendAction()
             fields += remediation.asDynamicAuthFieldActions()
-            // Start polling current remediation. Required for asynchronous actions like using an email magic link to sign in.
+            // Start polling current remediation (if applicable). Required for asynchronous actions like using an email magic link to sign in.
             remediation.startPolling()
         }
         // If remediation didn't have a TOTP image check the authenticators for one.
@@ -329,7 +329,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Start polling on a remediation for asynchronous actions like clicking on an email magic link or okta verify.
+     * Start polling on a remediation (if applicable) for asynchronous actions like clicking on an email magic link or okta verify.
      */
     private fun IdxRemediation.startPolling() {
         val localClient = client ?: return

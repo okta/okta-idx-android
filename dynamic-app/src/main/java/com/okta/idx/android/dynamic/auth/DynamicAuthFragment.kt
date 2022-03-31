@@ -122,7 +122,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
     }
 
     /**
-     * Render `DynamicAuthField` models dynamically on the given view.
+     * Create a `View` to render the `DynamicAuthField`.
      */
     private fun DynamicAuthField.createView(): View {
         return when (this) {
