@@ -82,7 +82,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 DynamicAuthState.Loading -> {
                     addLoadingView()
                 }
-                // If login is success, update the TokenViewModel and switch to DashboardFragment.
+                // If login is success, update the `TokenViewModel` and switch to `DashboardFragment`.
                 is DynamicAuthState.Tokens -> {
                     TokenViewModel._tokenResponse = state.tokenResponse
                     findNavController().navigate(DynamicAuthFragmentDirections.dynamicAuthToDashboard())
@@ -122,7 +122,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
     }
 
     /**
-     * Render IdxDynamicFields dynamically on the given view.
+     * Render `DynamicAuthField` models dynamically on the given view.
      */
     private fun DynamicAuthField.createView(): View {
         return when (this) {
@@ -211,7 +211,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 showSelectedContent(optionsBinding.radioGroup)
                 optionsBinding.root
             }
-            // render image for authenticator QR code
+            // Render image for authenticator QR code.
             is DynamicAuthField.Image -> {
                 val imageBinding = binding.formContent.inflateBinding(FormImageBinding::inflate)
                 imageBinding.labelTextView.text = label

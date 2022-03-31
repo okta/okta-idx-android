@@ -132,7 +132,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     private suspend fun handleResponse(response: IdxResponse) {
-        // If a response is successful, immediately exchange it for a token and set it on LoggedInUserView.
+        // If a response is successful, immediately exchange it for a token and exit.
         if (response.isLoginSuccessful) {
             when (val exchangeCodesResult =
                 client?.exchangeInteractionCodeForTokens(response.remediations[IdxRemediation.Type.ISSUE]!!)) {
@@ -184,7 +184,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Extract a label from a number challenge in IdxRemediation.authenticators.
+     * Get a label from `IdxRemediation.authenticators` when `IdxNumberChallengeCapability` is present
      */
     private fun IdxRemediation.asNumberChallengeField(): List<DynamicAuthField> {
         val capability = authenticators.capability<IdxNumberChallengeCapability>() ?: return emptyList()
@@ -192,7 +192,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Extract a bitmap image, like QR Code, from IdxRemediation.authenticators.
+     * Get a bitmap image, like a QR Code, from `IdxRemediation.authenticators` when `IdxTotpCapability` is present.
      */
     private suspend fun IdxRemediation.asTotpImageDynamicAuthField(): List<DynamicAuthField> {
         val authenticator = authenticators.firstOrNull { it.capabilities.get<IdxTotpCapability>() != null } ?: return emptyList()
@@ -201,7 +201,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Extract a bitmap image, like QR Code,  from IdxAuthenticator.
+     * Get a bitmap image, like a QR Code,  from `IdxAuthenticator` when `IdxTotpCapability` is present.
      */
     private suspend fun IdxAuthenticator.asTotpImageDynamicAuthField(): DynamicAuthField? {
         val capability = capabilities.get<IdxTotpCapability>() ?: return null
@@ -213,7 +213,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Extract text fields and radio groups from IdxRemediation.form.visibleFields.
+     * Get text fields, checkboxes, radio buttons and radio button groups from `IdxRemediation.form.visibleFields`.
      */
     private fun IdxRemediation.Form.Field.asDynamicAuthFields(): List<DynamicAuthField> {
         return when (true) {
@@ -264,7 +264,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Create Resend action for IdxRemediation when capabilities are empty.
+     * Get a resend action from `IdxRemediation.authenticators` when `IdxResendCapability` is present.
      */
     private fun IdxRemediation.asDynamicAuthFieldResendAction(): List<DynamicAuthField> {
         val capability = authenticators.capability<IdxResendCapability>() ?: return emptyList()
@@ -277,7 +277,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Create actions for IdxRemediations with visibleFields.
+     * Get actions for `IdxRemediations` with visibleFields.
      */
     private fun IdxRemediation.asDynamicAuthFieldActions(): List<DynamicAuthField> {
         // Don't show action for actions that are pollable without visible fields.
@@ -307,7 +307,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Create Recover action for IdxResponse when capabilities are empty.
+     * Get a recover action from `IdxResponse.authenticators` when `IdxRecoverCapability` is present.
      */
     private fun IdxResponse.recoverDynamicAuthFieldAction(): List<DynamicAuthField> {
         val capability = authenticators.current?.capabilities?.get<IdxRecoverCapability>() ?: return emptyList()
@@ -317,7 +317,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Create a Go to login action for IdxResponse when remediations are empty.
+     * Create a 'Go to login' action for `IdxResponse` when remediations are empty.
      */
     private fun IdxResponse.fatalErrorFieldAction(): List<DynamicAuthField> {
         if (remediations.isNotEmpty()) {
@@ -362,7 +362,8 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Proceed to the next phase of the remediation. If the remediation has an `IdxIdpCapability`, it'll redirect to a browser showing the identity provider, otherwise it calls the Authorization Server with the given `remediation`.
+     * Proceed to the next phase of the remediation. If the remediation has an `IdxIdpCapability`,
+     * it'll redirect to a browser showing the identity provider, otherwise it calls the Authorization Server with the given `remediation`.
      */
     private fun proceed(remediation: IdxRemediation, context: Context) {
         val idpCapability = remediation.capabilities.get<IdxIdpCapability>()
