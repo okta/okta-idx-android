@@ -23,12 +23,11 @@ import com.okta.idx.android.util.emitValidation
 import com.okta.idx.kotlin.dto.IdxRemediation
 
 /**
- * Data model classes to hold dynamic fields sent in remediation by IDX SDK response.
- * Fields sent are: Text fields, password fields, QR Codes, checkbox, options, labels and action buttons).
+ * Data model classes representing `IdxRemediation` as a View Model. 
  */
 sealed class DynamicAuthField {
     /**
-     * Text class holds text and password fields. Supports inline validation.
+     * `DynamicAuthField.Text` are displayed as a `TextInputLayout`, and represents a `IdxRemediation.Form.Field.type` `string` fields.
      */
     data class Text(
         val label: String,
@@ -56,7 +55,7 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * Checkbox class holds boolean fields.
+     * `DynamicAuthField.Checkbox` is displayed as a `Checkbox`, and represents a `IdxRemediation.Form.Field.type` `boolean` fields.
      */
     data class CheckBox(
         val label: String,
@@ -70,7 +69,7 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * Options class holds nested radio buttons, usually used for authenticator selection and so on.
+     * `DynamicAuthField.Options` is displayed as a `RadioButton`, and represents a `IdxRemediation.Form.Field` with `options` fields.
      * Selection state is maintained on the IdxRemediation.Form.Field instance.
      * Supports inline validation.
      */
@@ -117,7 +116,7 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * Action class holds actions sent by remediations and are usually rendered as buttons.
+     * `DynamicAuthField.Action` is displayed as a `Button`, and typically represents a call submitting an `IdxRemediation` to `IdxClient.proceed`.
      */
     data class Action(
         val label: String,
@@ -125,7 +124,7 @@ sealed class DynamicAuthField {
     ) : DynamicAuthField()
 
     /**
-     * Image holds bitmap QR code data sent for an authenticator enrollment in remediation.
+     * `DynamicAuthField.Image` is displayed as an `ImageView`, and represents an `IdxRemediation.authenticators` capability of `IdxTotpCapability`.
      */
     data class Image(
         val label: String,
@@ -134,7 +133,7 @@ sealed class DynamicAuthField {
     ) : DynamicAuthField()
 
     /**
-     * Label holds label values from number challenges.
+     * `DynamicAuthField.Label` is displayed as a `TextView`, and represents an `IdxRemdiation.authenticators` capability of `IdxNumberChallengeCapability` label.
      */
     data class Label(
         val label: String,

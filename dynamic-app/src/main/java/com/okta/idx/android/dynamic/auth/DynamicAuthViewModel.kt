@@ -362,7 +362,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     }
 
     /**
-     * Start an activity from redirect or proceed to the next step in IDX flow using the current remediation.
+     * Proceed to the next phase of the remediation. If the remediation has an `IdxIdpCapability`, it'll redirect to a browser showing the identity provider, otherwise it calls the Authorization Server with the given `remediation`.
      */
     private fun proceed(remediation: IdxRemediation, context: Context) {
         val idpCapability = remediation.capabilities.get<IdxIdpCapability>()
