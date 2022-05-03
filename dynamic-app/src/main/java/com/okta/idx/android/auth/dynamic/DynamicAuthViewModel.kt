@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic.auth
+package com.okta.idx.android.auth.dynamic
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -23,7 +23,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.okta.idx.android.dynamic.SocialRedirectCoordinator
+import com.okta.idx.android.auth.SocialRedirectCoordinator
 import com.okta.idx.kotlin.client.IdxClient
 import com.okta.idx.kotlin.client.IdxClientResult
 import com.okta.idx.kotlin.client.IdxRedirectResult

@@ -21,7 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import com.okta.idx.android.dynamic.MainActivity
+import com.okta.idx.android.auth.MainActivity
 import io.cucumber.java.After
 import io.cucumber.java.Before
 import timber.log.Timber

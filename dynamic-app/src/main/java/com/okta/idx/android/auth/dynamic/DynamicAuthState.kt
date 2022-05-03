@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic.auth
+package com.okta.idx.android.auth.dynamic
 
 import com.okta.idx.kotlin.dto.IdxResponse
 import com.okta.idx.kotlin.dto.TokenResponse

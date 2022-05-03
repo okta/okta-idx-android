@@ -32,7 +32,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth.assertThat
-import com.okta.idx.android.dynamic.R
+import com.okta.idx.android.auth.R
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description

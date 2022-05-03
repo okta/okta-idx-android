@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic
+package com.okta.idx.android.auth
 
-import android.app.Application
-import timber.log.Timber
+import android.net.Uri
 
-class SampleApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-
-        Timber.plant(Timber.DebugTree())
-    }
+object SocialRedirectCoordinator {
+    var listener: SocialRedirectListener? = null
 }
+
+typealias SocialRedirectListener = ((Uri) -> Unit)

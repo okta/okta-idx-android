@@ -25,7 +25,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.okta.idx.android.cucumber.hooks.SharedState
-import com.okta.idx.android.dynamic.R
+import com.okta.idx.android.auth.R
 import com.okta.idx.android.infrastructure.ACTION_BUTTON_VIEW
 import com.okta.idx.android.infrastructure.CLAIM_KEY_TEXT_VIEW
 import com.okta.idx.android.infrastructure.EndToEndCredentials

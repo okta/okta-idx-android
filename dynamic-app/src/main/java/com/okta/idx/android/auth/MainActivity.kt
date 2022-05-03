@@ -13,22 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic
+package com.okta.idx.android.auth
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-class SocialRedirectActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
+    companion object {
+        const val SOCIAL_REDIRECT_ACTION = "SocialRedirect"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intent = Intent(this, MainActivity::class.java)
-        intent.action = MainActivity.SOCIAL_REDIRECT_ACTION
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        intent.data = getIntent().data
-        startActivity(intent)
+        setContentView(R.layout.activity_main)
+    }
 
-        finish()
+    public override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        if (intent?.action == SOCIAL_REDIRECT_ACTION) {
+            intent.data?.let {
+                SocialRedirectCoordinator.listener?.invoke(it)
+            }
+        }
     }
 }

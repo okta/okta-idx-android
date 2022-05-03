@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic.auth
+package com.okta.idx.android.auth.dynamic
 
-import com.okta.idx.android.dynamic.BuildConfig
+import com.okta.idx.android.auth.BuildConfig
 import com.okta.idx.kotlin.client.IdxClientConfiguration
 import okhttp3.HttpUrl.Companion.toHttpUrl
 

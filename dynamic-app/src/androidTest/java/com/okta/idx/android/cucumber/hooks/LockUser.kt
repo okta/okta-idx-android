@@ -15,7 +15,7 @@
  */
 package com.okta.idx.android.cucumber.hooks
 
-import com.okta.idx.android.dynamic.BuildConfig
+import com.okta.idx.android.auth.BuildConfig
 import io.cucumber.java.Before
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrl

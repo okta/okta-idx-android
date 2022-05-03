@@ -20,9 +20,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.okta.idx.android.dynamic.R
-import com.okta.idx.android.dynamic.databinding.FragmentDashboardBinding
-import com.okta.idx.android.dynamic.databinding.RowDashboardClaimBinding
+import com.okta.idx.android.auth.R
+import com.okta.idx.android.auth.databinding.FragmentDashboardBinding
+import com.okta.idx.android.auth.databinding.RowDashboardClaimBinding
 import com.okta.idx.android.util.BaseFragment
 import com.okta.idx.android.util.inflateBinding
 

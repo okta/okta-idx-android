@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic.auth
+package com.okta.idx.android.auth.dynamic
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -33,19 +33,19 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputLayout
 import com.okta.idx.android.dashboard.TokenViewModel
-import com.okta.idx.android.dynamic.R
-import com.okta.idx.android.dynamic.databinding.ErrorBinding
-import com.okta.idx.android.dynamic.databinding.ErrorFieldBinding
-import com.okta.idx.android.dynamic.databinding.FormActionPrimaryBinding
-import com.okta.idx.android.dynamic.databinding.FormCheckBoxBinding
-import com.okta.idx.android.dynamic.databinding.FormImageBinding
-import com.okta.idx.android.dynamic.databinding.FormLabelBinding
-import com.okta.idx.android.dynamic.databinding.FormOptionBinding
-import com.okta.idx.android.dynamic.databinding.FormOptionNestedBinding
-import com.okta.idx.android.dynamic.databinding.FormOptionsBinding
-import com.okta.idx.android.dynamic.databinding.FormTextBinding
-import com.okta.idx.android.dynamic.databinding.FragmentDynamicAuthBinding
-import com.okta.idx.android.dynamic.databinding.LoadingBinding
+import com.okta.idx.android.auth.R
+import com.okta.idx.android.auth.databinding.ErrorBinding
+import com.okta.idx.android.auth.databinding.ErrorFieldBinding
+import com.okta.idx.android.auth.databinding.FormActionPrimaryBinding
+import com.okta.idx.android.auth.databinding.FormCheckBoxBinding
+import com.okta.idx.android.auth.databinding.FormImageBinding
+import com.okta.idx.android.auth.databinding.FormLabelBinding
+import com.okta.idx.android.auth.databinding.FormOptionBinding
+import com.okta.idx.android.auth.databinding.FormOptionNestedBinding
+import com.okta.idx.android.auth.databinding.FormOptionsBinding
+import com.okta.idx.android.auth.databinding.FormTextBinding
+import com.okta.idx.android.auth.databinding.FragmentDynamicAuthBinding
+import com.okta.idx.android.auth.databinding.LoadingBinding
 import com.okta.idx.android.util.BaseFragment
 import com.okta.idx.android.util.bindText
 import com.okta.idx.android.util.inflateBinding

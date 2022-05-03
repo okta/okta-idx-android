@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.dynamic
+package com.okta.idx.android.auth
 
-import android.net.Uri
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
-object SocialRedirectCoordinator {
-    var listener: SocialRedirectListener? = null
+class SocialRedirectActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.action = MainActivity.SOCIAL_REDIRECT_ACTION
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        intent.data = getIntent().data
+        startActivity(intent)
+
+        finish()
+    }
 }
-
-typealias SocialRedirectListener = ((Uri) -> Unit)

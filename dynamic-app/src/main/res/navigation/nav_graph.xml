@@ -8,7 +8,7 @@
     >
     <fragment
         android:id="@+id/LaunchFragment"
-        android:name="com.okta.idx.android.dynamic.LaunchFragment"
+        android:name="com.okta.idx.android.auth.LaunchFragment"
         tools:layout="@layout/fragment_launch"
         >
         <action
@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/DynamicAuthFragment"
-        android:name="com.okta.idx.android.dynamic.auth.DynamicAuthFragment"
+        android:name="com.okta.idx.android.auth.dynamic.DynamicAuthFragment"
         tools:layout="@layout/fragment_dynamic_auth"
         >
         <argument

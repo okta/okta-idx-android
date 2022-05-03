@@ -21,8 +21,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.okta.idx.android.dynamic.BuildConfig
-import com.okta.idx.android.dynamic.auth.OktaIdxClientConfigurationProvider
+import com.okta.idx.android.auth.BuildConfig
+import com.okta.idx.android.auth.dynamic.OktaIdxClientConfigurationProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.FormBody
