@@ -71,7 +71,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
                 extraRequestParameters["recovery_token"] = recoveryToken
             }
             // Initiate the IDX client and start IDX flow.
-            when (val clientResult = IdxClient.start(IdxClientConfigurationProvider.get(), extraRequestParameters)) {
+            when (val clientResult = IdxClient.start(OktaIdxClientConfigurationProvider.get(), extraRequestParameters)) {
                 is IdxClientResult.Error -> {
                     _state.value = DynamicAuthState.Error("Failed to create client")
                 }

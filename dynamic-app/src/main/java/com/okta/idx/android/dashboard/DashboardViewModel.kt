@@ -22,7 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.okta.idx.android.dynamic.BuildConfig
-import com.okta.idx.android.dynamic.auth.IdxClientConfigurationProvider
+import com.okta.idx.android.dynamic.auth.OktaIdxClientConfigurationProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.FormBody
@@ -73,7 +73,7 @@ internal class DashboardViewModel : ViewModel() {
             .addHeader("authorization", "Bearer $accessToken")
             .url("${BuildConfig.ISSUER}/v1/userinfo")
             .build()
-        val response = IdxClientConfigurationProvider.get().okHttpCallFactory.newCall(request).execute()
+        val response = OktaIdxClientConfigurationProvider.get().okHttpCallFactory.newCall(request).execute()
         if (response.isSuccessful) {
             val parser = ObjectMapper().createParser(response.body?.byteStream())
             val json = parser.readValueAsTree<JsonNode>()
@@ -99,7 +99,7 @@ internal class DashboardViewModel : ViewModel() {
             .post(formBody)
             .build()
 
-        val response = IdxClientConfigurationProvider.get().okHttpCallFactory.newCall(request).execute()
+        val response = OktaIdxClientConfigurationProvider.get().okHttpCallFactory.newCall(request).execute()
         Timber.d("Revoke Token Response: %s", response)
     }
 

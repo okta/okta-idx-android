@@ -22,13 +22,13 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 /**
  * Provides Okta organization configuration for IDX client.
  */
-internal object IdxClientConfigurationProvider {
+internal object OktaIdxClientConfigurationProvider {
     fun get(): IdxClientConfiguration {
         return IdxClientConfiguration(
             issuer = BuildConfig.ISSUER.toHttpUrl(),
             clientId = BuildConfig.CLIENT_ID,
-            scopes = setOf("openid", "email", "profile", "offline_access"),
             redirectUri = BuildConfig.REDIRECT_URI,
+            scopes = BuildConfig.SCOPES.toSet(),
         )
     }
 }

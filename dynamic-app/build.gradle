@@ -18,6 +18,7 @@ android {
         buildConfigField "String", 'ISSUER', "\"${oktaProperties.getProperty('issuer')}\""
         buildConfigField "String", 'CLIENT_ID', "\"${oktaProperties.getProperty('clientId')}\""
         buildConfigField "String", 'REDIRECT_URI', "\"${oktaProperties.getProperty('redirectUri')}\""
+        buildConfigField "String[]", 'SCOPES', "{${oktaProperties.getProperty('scopes')}}"
 
         manifestPlaceholders = [
                 "oktaIdxRedirectScheme": parseScheme(oktaProperties.getProperty('redirectUri'))
