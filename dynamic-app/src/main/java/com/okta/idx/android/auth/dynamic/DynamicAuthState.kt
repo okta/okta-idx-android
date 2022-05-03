@@ -23,7 +23,7 @@ sealed class DynamicAuthState {
 
     data class Form(
         internal val idxResponse: IdxResponse,
-        val fields: List<DynamicAuthField>,
+        val fields: List<OktaIdxDynamicAuthField>,
         val messages: List<String>,
     ) : DynamicAuthState()
 

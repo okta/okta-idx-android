@@ -25,9 +25,9 @@ import com.okta.idx.kotlin.dto.IdxRemediation
 /**
  * Data model classes representing `IdxRemediation` as a View Model. 
  */
-sealed class DynamicAuthField {
+sealed class OktaIdxDynamicAuthField {
     /**
-     * `DynamicAuthField.Text` are displayed as a `TextInputLayout`, and represents a `IdxRemediation.Form.Field.type` `string` fields.
+     * `OktaIdxDynamicAuthField.Text` are displayed as a `TextInputLayout`, and represents a `IdxRemediation.Form.Field.type` `string` fields.
      */
     data class Text(
         val label: String,
@@ -35,7 +35,7 @@ sealed class DynamicAuthField {
         val isSecure: Boolean,
         val errorMessage: String?,
         private val valueUpdater: (String) -> Unit
-    ) : DynamicAuthField() {
+    ) : OktaIdxDynamicAuthField() {
         private val _errorsLiveData = MutableLiveData(errorMessage ?: "")
         val errorsLiveData: LiveData<String> = _errorsLiveData
 
@@ -55,12 +55,12 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * `DynamicAuthField.Checkbox` is displayed as a `Checkbox`, and represents a `IdxRemediation.Form.Field.type` `boolean` fields.
+     * `OktaIdxDynamicAuthField.Checkbox` is displayed as a `Checkbox`, and represents a `IdxRemediation.Form.Field.type` `boolean` fields.
      */
     data class CheckBox(
         val label: String,
         private val valueUpdater: (Boolean) -> Unit
-    ) : DynamicAuthField() {
+    ) : OktaIdxDynamicAuthField() {
         var value: Boolean = false
             set(value) {
                 field = value
@@ -69,7 +69,7 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * `DynamicAuthField.Options` is displayed as a `RadioButton`, and represents a `IdxRemediation.Form.Field` with `options` fields.
+     * `OktaIdxDynamicAuthField.Options` is displayed as a `RadioButton`, and represents a `IdxRemediation.Form.Field` with `options` fields.
      * Selection state is maintained on the IdxRemediation.Form.Field instance.
      * Supports inline validation.
      */
@@ -79,11 +79,11 @@ sealed class DynamicAuthField {
         val isRequired: Boolean,
         val errorMessage: String?,
         private val valueUpdater: (IdxRemediation.Form.Field?) -> Unit,
-    ) : DynamicAuthField() {
+    ) : OktaIdxDynamicAuthField() {
         data class Option(
             private val field: IdxRemediation.Form.Field,
             val label: String?,
-            val fields: List<DynamicAuthField>,
+            val fields: List<OktaIdxDynamicAuthField>,
         ) {
             fun update(valueUpdater: (IdxRemediation.Form.Field?) -> Unit) {
                 valueUpdater(field)
@@ -116,28 +116,28 @@ sealed class DynamicAuthField {
     }
 
     /**
-     * `DynamicAuthField.Action` is displayed as a `Button`, and typically represents a call submitting an `IdxRemediation` to `IdxClient.proceed`.
+     * `OktaIdxDynamicAuthField.Action` is displayed as a `Button`, and typically represents a call submitting an `IdxRemediation` to `IdxClient.proceed`.
      */
     data class Action(
         val label: String,
         val onClick: (context: Context) -> Unit
-    ) : DynamicAuthField()
+    ) : OktaIdxDynamicAuthField()
 
     /**
-     * `DynamicAuthField.Image` is displayed as an `ImageView`, and represents an `IdxRemediation.authenticators` capability of `IdxTotpCapability`.
+     * `OktaIdxDynamicAuthField.Image` is displayed as an `ImageView`, and represents an `IdxRemediation.authenticators` capability of `IdxTotpCapability`.
      */
     data class Image(
         val label: String,
         val bitmap: Bitmap,
         val sharedSecret: String?,
-    ) : DynamicAuthField()
+    ) : OktaIdxDynamicAuthField()
 
     /**
-     * `DynamicAuthField.Label` is displayed as a `TextView`, and represents an `IdxRemdiation.authenticators` capability of `IdxNumberChallengeCapability` label.
+     * `OktaIdxDynamicAuthField.Label` is displayed as a `TextView`, and represents an `IdxRemdiation.authenticators` capability of `IdxNumberChallengeCapability` label.
      */
     data class Label(
         val label: String,
-    ) : DynamicAuthField()
+    ) : OktaIdxDynamicAuthField()
 
     open fun validate(): Boolean {
         return true

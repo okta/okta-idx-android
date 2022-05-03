@@ -150,7 +150,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
         cancelPolling()
         // Obtain fields, actions and images from remediation and collect as DynamicAuthFields.
         var hasAddedTotpImageField = false
-        val fields = mutableListOf<DynamicAuthField>()
+        val fields = mutableListOf<OktaIdxDynamicAuthField>()
         for (remediation in response.remediations) {
             fields += remediation.asTotpImageDynamicAuthField().also {
                 if (it.isNotEmpty()) {
@@ -186,15 +186,15 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     /**
      * Get a label from `IdxRemediation.authenticators` when `IdxNumberChallengeCapability` is present
      */
-    private fun IdxRemediation.asNumberChallengeField(): List<DynamicAuthField> {
+    private fun IdxRemediation.asNumberChallengeField(): List<OktaIdxDynamicAuthField> {
         val capability = authenticators.capability<IdxNumberChallengeCapability>() ?: return emptyList()
-        return listOf(DynamicAuthField.Label("Please select ${capability.correctAnswer}"))
+        return listOf(OktaIdxDynamicAuthField.Label("Please select ${capability.correctAnswer}"))
     }
 
     /**
      * Get a bitmap image, like a QR Code, from `IdxRemediation.authenticators` when `IdxTotpCapability` is present.
      */
-    private suspend fun IdxRemediation.asTotpImageDynamicAuthField(): List<DynamicAuthField> {
+    private suspend fun IdxRemediation.asTotpImageDynamicAuthField(): List<OktaIdxDynamicAuthField> {
         val authenticator = authenticators.firstOrNull { it.capabilities.get<IdxTotpCapability>() != null } ?: return emptyList()
         val field = authenticator.asTotpImageDynamicAuthField() ?: return emptyList()
         return listOf(field)
@@ -203,23 +203,23 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     /**
      * Get a bitmap image, like a QR Code,  from `IdxAuthenticator` when `IdxTotpCapability` is present.
      */
-    private suspend fun IdxAuthenticator.asTotpImageDynamicAuthField(): DynamicAuthField? {
+    private suspend fun IdxAuthenticator.asTotpImageDynamicAuthField(): OktaIdxDynamicAuthField? {
         val capability = capabilities.get<IdxTotpCapability>() ?: return null
         val bitmap = withContext(Dispatchers.Default) {
             capability.asImage()
         } ?: return null
         val label = displayName ?: "Launch Google Authenticator, tap the \"+\" icon, then select \"Scan a QR code\"."
-        return DynamicAuthField.Image(label, bitmap, capability.sharedSecret)
+        return OktaIdxDynamicAuthField.Image(label, bitmap, capability.sharedSecret)
     }
 
     /**
      * Get text fields, checkboxes, radio buttons and radio button groups from `IdxRemediation.form.visibleFields`.
      */
-    private fun IdxRemediation.Form.Field.asDynamicAuthFields(): List<DynamicAuthField> {
+    private fun IdxRemediation.Form.Field.asDynamicAuthFields(): List<OktaIdxDynamicAuthField> {
         return when (true) {
             // Nested form inside a field.
             form?.visibleFields?.isNullOrEmpty() == false -> {
-                val result = mutableListOf<DynamicAuthField>()
+                val result = mutableListOf<OktaIdxDynamicAuthField>()
                 form?.visibleFields?.forEach {
                     result += it.asDynamicAuthFields()
                 }
@@ -231,24 +231,24 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
                     val transformed = options.map {
                         val fields =
                             it.form?.visibleFields?.flatMap { field -> field.asDynamicAuthFields() } ?: emptyList()
-                        DynamicAuthField.Options.Option(it, it.label, fields)
+                        OktaIdxDynamicAuthField.Options.Option(it, it.label, fields)
                     }
                     val displayMessages = messages.joinToString(separator = "\n") { it.message }
-                    listOf(DynamicAuthField.Options(label, transformed, isRequired, displayMessages) {
+                    listOf(OktaIdxDynamicAuthField.Options(label, transformed, isRequired, displayMessages) {
                         selectedOption = it
                     })
                 } ?: emptyList()
             }
             // Simple boolean field for checkbox.
             type == "boolean" -> {
-                listOf(DynamicAuthField.CheckBox(label ?: "") {
+                listOf(OktaIdxDynamicAuthField.CheckBox(label ?: "") {
                     value = it
                 })
             }
             // Simple text field.
             type == "string" -> {
                 val displayMessages = messages.joinToString(separator = "\n") { it.message }
-                val field = DynamicAuthField.Text(label ?: "", isRequired, isSecret, displayMessages) {
+                val field = OktaIdxDynamicAuthField.Text(label ?: "", isRequired, isSecret, displayMessages) {
                     value = it
                 }
                 (value as? String?)?.let {
@@ -266,12 +266,12 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     /**
      * Get a resend action from `IdxRemediation.authenticators` when `IdxResendCapability` is present.
      */
-    private fun IdxRemediation.asDynamicAuthFieldResendAction(): List<DynamicAuthField> {
+    private fun IdxRemediation.asDynamicAuthFieldResendAction(): List<OktaIdxDynamicAuthField> {
         val capability = authenticators.capability<IdxResendCapability>() ?: return emptyList()
         if (form.visibleFields.find { it.type != "string" } == null) {
             return emptyList() // There is no way to type in the code yet.
         }
-        return listOf(DynamicAuthField.Action("Resend Code") { context ->
+        return listOf(OktaIdxDynamicAuthField.Action("Resend Code") { context ->
             proceed(capability.remediation, context)
         })
     }
@@ -279,7 +279,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     /**
      * Get actions for `IdxRemediations` with visibleFields.
      */
-    private fun IdxRemediation.asDynamicAuthFieldActions(): List<DynamicAuthField> {
+    private fun IdxRemediation.asDynamicAuthFieldActions(): List<OktaIdxDynamicAuthField> {
         // Don't show action for actions that are pollable without visible fields.
         if (form.visibleFields.isEmpty() && capabilities.get<IdxPollRemediationCapability>() != null) {
             return emptyList()
@@ -301,7 +301,7 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
             else -> "Continue"
         }
 
-        return listOf(DynamicAuthField.Action(title) { context ->
+        return listOf(OktaIdxDynamicAuthField.Action(title) { context ->
             proceed(this, context)
         })
     }
@@ -309,9 +309,9 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     /**
      * Get a recover action from `IdxResponse.authenticators` when `IdxRecoverCapability` is present.
      */
-    private fun IdxResponse.recoverDynamicAuthFieldAction(): List<DynamicAuthField> {
+    private fun IdxResponse.recoverDynamicAuthFieldAction(): List<OktaIdxDynamicAuthField> {
         val capability = authenticators.current?.capabilities?.get<IdxRecoverCapability>() ?: return emptyList()
-        return listOf(DynamicAuthField.Action("Recover") { context ->
+        return listOf(OktaIdxDynamicAuthField.Action("Recover") { context ->
             proceed(capability.remediation, context)
         })
     }
@@ -319,11 +319,11 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
     /**
      * Create a 'Go to login' action for `IdxResponse` when remediations are empty.
      */
-    private fun IdxResponse.fatalErrorFieldAction(): List<DynamicAuthField> {
+    private fun IdxResponse.fatalErrorFieldAction(): List<OktaIdxDynamicAuthField> {
         if (remediations.isNotEmpty()) {
             return emptyList()
         }
-        return listOf(DynamicAuthField.Action("Go to login") {
+        return listOf(OktaIdxDynamicAuthField.Action("Go to login") {
             createClient()
         })
     }

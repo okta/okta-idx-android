@@ -122,12 +122,12 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
     }
 
     /**
-     * Create a `View` to render the `DynamicAuthField`.
+     * Create a `View` to render the `OktaIdxDynamicAuthField`.
      */
-    private fun DynamicAuthField.createView(): View {
+    private fun OktaIdxDynamicAuthField.createView(): View {
         return when (this) {
             // Render text fields.
-            is DynamicAuthField.Text -> {
+            is OktaIdxDynamicAuthField.Text -> {
                 val textBinding = binding.formContent.inflateBinding(FormTextBinding::inflate)
 
                 textBinding.textInputLayout.hint = label
@@ -150,7 +150,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 textBinding.root
             }
             // Render checkboxes.
-            is DynamicAuthField.CheckBox -> {
+            is OktaIdxDynamicAuthField.CheckBox -> {
                 val actionBinding = binding.formContent.inflateBinding(FormCheckBoxBinding::inflate)
                 actionBinding.checkbox.text = label
                 actionBinding.checkbox.isChecked = value
@@ -160,17 +160,17 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 actionBinding.root
             }
             // Render actions as buttons.
-            is DynamicAuthField.Action -> {
+            is OktaIdxDynamicAuthField.Action -> {
                 val actionBinding = binding.formContent.inflateBinding(FormActionPrimaryBinding::inflate)
                 actionBinding.button.text = label
                 actionBinding.button.setOnClickListener { onClick(requireContext()) }
                 actionBinding.root
             }
             // Render radio groups for authenticator selection.
-            is DynamicAuthField.Options -> {
+            is OktaIdxDynamicAuthField.Options -> {
                 fun showSelectedContent(group: RadioGroup) {
                     for (view in group) {
-                        val tagOption = view.getTag(R.id.option) as? DynamicAuthField.Options.Option?
+                        val tagOption = view.getTag(R.id.option) as? OktaIdxDynamicAuthField.Options.Option?
                         if (tagOption != null) {
                             val nestedContentView = view.getTag(R.id.nested_content) as View
                             nestedContentView.visibility = if (tagOption == option) {
@@ -199,7 +199,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 }
                 optionsBinding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
                     val radioButton = group.findViewById<View>(checkedId)
-                    option = radioButton.getTag(R.id.option) as DynamicAuthField.Options.Option
+                    option = radioButton.getTag(R.id.option) as OktaIdxDynamicAuthField.Options.Option
                     showSelectedContent(group)
                 }
 
@@ -212,7 +212,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 optionsBinding.root
             }
             // Render image for authenticator QR code.
-            is DynamicAuthField.Image -> {
+            is OktaIdxDynamicAuthField.Image -> {
                 val imageBinding = binding.formContent.inflateBinding(FormImageBinding::inflate)
                 imageBinding.labelTextView.text = label
                 imageBinding.imageView.setImageBitmap(bitmap)
@@ -228,7 +228,7 @@ internal class DynamicAuthFragment : BaseFragment<FragmentDynamicAuthBinding>(
                 imageBinding.root
             }
             // Render labels.
-            is DynamicAuthField.Label -> {
+            is OktaIdxDynamicAuthField.Label -> {
                 val binding = binding.formContent.inflateBinding(FormLabelBinding::inflate)
                 binding.labelTextView.text = label
                 binding.root
