@@ -57,7 +57,7 @@ private class ContinuationCallback(
     private val continuation: CancellableContinuation<Response>
 ) : Callback, CompletionHandler {
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onResponse(call: Call, response: Response) {
         continuation.resume(response, this)
     }
