@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:17.0.3
+      - image: cimg/android:2022.04.1
     steps:
       - checkout
       - run:
