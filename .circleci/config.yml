@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run:
           name: Build
-          command: ./gradlew assembleDebug testDebugUnitTest assembleAndroidTest --parallel
+          command: ./gradlew assembleDebug testDebugUnitTest assembleAndroidTest
 
 workflows:
   build_and_test:
