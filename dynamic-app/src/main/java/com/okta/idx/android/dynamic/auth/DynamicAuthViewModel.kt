@@ -71,10 +71,12 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
                 extraRequestParameters["recovery_token"] = recoveryToken
             }
             // Initiate the IDX client and start IDX flow.
-            when (val clientResult = CredentialBootstrap.oidcClient.createIdxFlow(
-                redirectUrl = BuildConfig.REDIRECT_URI,
-                extraStartRequestParameters = extraRequestParameters,
-            )) {
+            when (
+                val clientResult = CredentialBootstrap.oidcClient.createIdxFlow(
+                    redirectUrl = BuildConfig.REDIRECT_URI,
+                    extraStartRequestParameters = extraRequestParameters,
+                )
+            ) {
                 is OidcClientResult.Error -> {
                     _state.value = DynamicAuthState.Error("Failed to create client")
                 }
@@ -238,16 +240,20 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
                         DynamicAuthField.Options.Option(it, it.label, fields)
                     }
                     val displayMessages = messages.joinToString(separator = "\n") { it.message }
-                    listOf(DynamicAuthField.Options(label, transformed, isRequired, displayMessages) {
-                        selectedOption = it
-                    })
+                    listOf(
+                        DynamicAuthField.Options(label, transformed, isRequired, displayMessages) {
+                            selectedOption = it
+                        }
+                    )
                 } ?: emptyList()
             }
             // Simple boolean field for checkbox.
             type == "boolean" -> {
-                listOf(DynamicAuthField.CheckBox(label ?: "") {
-                    value = it
-                })
+                listOf(
+                    DynamicAuthField.CheckBox(label ?: "") {
+                        value = it
+                    }
+                )
             }
             // Simple text field.
             type == "string" -> {
@@ -275,9 +281,11 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
         if (form.visibleFields.find { it.type != "string" } == null) {
             return emptyList() // There is no way to type in the code yet.
         }
-        return listOf(DynamicAuthField.Action("Resend Code") { context ->
-            proceed(capability.remediation, context)
-        })
+        return listOf(
+            DynamicAuthField.Action("Resend Code") { context ->
+                proceed(capability.remediation, context)
+            }
+        )
     }
 
     /**
@@ -305,9 +313,11 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
             else -> "Continue"
         }
 
-        return listOf(DynamicAuthField.Action(title) { context ->
-            proceed(this, context)
-        })
+        return listOf(
+            DynamicAuthField.Action(title) { context ->
+                proceed(this, context)
+            }
+        )
     }
 
     /**
@@ -315,9 +325,11 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
      */
     private fun IdxResponse.recoverDynamicAuthFieldAction(): List<DynamicAuthField> {
         val capability = authenticators.current?.capabilities?.get<IdxRecoverCapability>() ?: return emptyList()
-        return listOf(DynamicAuthField.Action("Recover") { context ->
-            proceed(capability.remediation, context)
-        })
+        return listOf(
+            DynamicAuthField.Action("Recover") { context ->
+                proceed(capability.remediation, context)
+            }
+        )
     }
 
     /**
@@ -327,9 +339,11 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
         if (remediations.isNotEmpty()) {
             return emptyList()
         }
-        return listOf(DynamicAuthField.Action("Go to login") {
-            createClient()
-        })
+        return listOf(
+            DynamicAuthField.Action("Go to login") {
+                createClient()
+            }
+        )
     }
 
     /**
