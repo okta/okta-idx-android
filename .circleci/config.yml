@@ -4,8 +4,6 @@ jobs:
   build:
     docker:
       - image: cimg/android:2022.04.1
-    environment:
-      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
     steps:
       - checkout
       - run:
