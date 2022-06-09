@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+apply plugin: 'com.vanniktech.maven.publish.base'
 
 android {
     compileSdkVersion build_versions.compile_sdk
@@ -42,14 +43,4 @@ dependencies {
     testImplementation deps.truth
     testImplementation deps.jackson_databind
     testImplementation deps.robolectric
-}
-
-if (hasProperty('mavenCentralUsername')) {
-    apply plugin: "com.vanniktech.maven.publish"
-    afterEvaluate {
-        signing {
-            useGpgCmd()
-            sign configurations.archives
-        }
-    }
 }
