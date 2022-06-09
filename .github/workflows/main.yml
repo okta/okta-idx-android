@@ -31,6 +31,9 @@ jobs:
           echo $E2E_CREDENTIALS_BASE64 | base64 --decode > dynamic-app/src/androidTest/resources/e2eCredentials.yaml
           echo $OKTA_PROPERTIES_BASE64 | base64 --decode > okta.properties
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
       - name: Run Tests
         run: ./gradlew assembleDebug testDebugUnitTest assembleAndroidTest
 
