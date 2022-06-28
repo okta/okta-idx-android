@@ -4,6 +4,7 @@ versions.androidx_test_ext = '1.1.3'
 versions.androidx_text_uiautomator = '2.2.0'
 versions.android_gradle_plugin = '7.2.1'
 versions.appcompat = '1.4.1'
+versions.auth_foundation = '0.6.0-BETA'
 versions.bouncy_castle = '1.65'
 versions.constraint_layout = '2.1.4'
 versions.core_ktx = '1.7.0'
@@ -17,6 +18,7 @@ versions.gradle_maven_publish = '0.20.0'
 versions.jackson = '2.13.3'
 versions.junit = '4.13.1'
 versions.kotlin = '1.6.21'
+versions.kotlin_binary_compatibility = '0.10.0'
 versions.kotlin_serialization = '1.3.3'
 versions.leakcanary = '2.9.1'
 versions.lifecycle = '2.4.1'
@@ -28,6 +30,7 @@ versions.okta_management = '8.2.1'
 versions.okta_http_okhttp = '1.3.0'
 versions.okio = '3.1.0'
 versions.robolectric = '4.8.1'
+versions.spotless = '6.6.1'
 versions.timber = '5.0.1'
 versions.truth = '1.1.3'
 ext.versions = versions
@@ -87,6 +90,7 @@ deps.jackson_yaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$v
 deps.junit = "junit:junit:$versions.junit"
 
 def kotlin = [:]
+kotlin.binary_compatibility_plugin = "org.jetbrains.kotlinx:binary-compatibility-validator:$versions.kotlin_binary_compatibility"
 kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
 kotlin.plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
 kotlin.serialization_json = "org.jetbrains.kotlinx:kotlinx-serialization-json:$versions.kotlin_serialization"
@@ -123,9 +127,13 @@ def okta = [:]
 okta.idx = "com.okta.idx.sdk:okta-idx-java-api:$versions.okta_idx"
 okta.management_sdk = "com.okta.sdk:okta-sdk-impl:$versions.okta_management"
 okta.http_okhttp = "com.okta.commons:okta-http-okhttp:$versions.okta_http_okhttp"
+okta.auth_foundation = "com.okta.kotlin:auth-foundation:$versions.auth_foundation"
+okta.auth_foundation_bootstrap = "com.okta.kotlin:auth-foundation-bootstrap:$versions.auth_foundation"
 deps.okta = okta
 
 deps.robolectric = "org.robolectric:robolectric:$versions.robolectric"
+
+deps.spotless = "com.diffplug.spotless:spotless-plugin-gradle:$versions.spotless"
 
 deps.timber = "com.jakewharton.timber:timber:$versions.timber"
 deps.truth = "com.google.truth:truth:$versions.truth"
@@ -147,5 +155,30 @@ def forceVersions(ConfigurationContainer configurations) {
     }
 }
 
+def configureSpotless(Project project) {
+    project.apply plugin: 'com.diffplug.spotless'
+
+    project.spotless {
+        format 'misc', {
+            target '**/*.gradle', '**/*.md', '**/.gitignore', '**/*.xml', '**/*.json', '**/*.properties', '**/*.yml', '**/*.kt'
+            targetExclude '.idea/*', '**/build/*', '.gradle/*'
+
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    project.plugins.withId('kotlin-android') {
+        project.spotless {
+            kotlin {
+                target '**/*.kt'
+                ktlint()
+                licenseHeaderFile rootProject.file('licenseTemplate.txt')
+            }
+        }
+    }
+}
+
 ext.addRepos = this.&addRepos
 ext.forceVersions = this.&forceVersions
+ext.configureSpotless = this.&configureSpotless

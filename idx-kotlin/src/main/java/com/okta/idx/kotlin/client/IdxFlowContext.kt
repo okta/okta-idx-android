@@ -18,7 +18,7 @@ package com.okta.idx.kotlin.client
 /**
  * Object that defines the context for the current authentication session, which is required when a session needs to be resumed.
  */
-class IdxClientContext internal constructor(
+class IdxFlowContext internal constructor(
     /** The PKCE code verifier value used when initiating the session using the `interact` method. */
     internal val codeVerifier: String,
 
@@ -31,4 +31,6 @@ class IdxClientContext internal constructor(
      * This value can be used to associate a redirect URI to the associated Context that can be used to resume an authentication session.
      */
     internal val state: String,
+
+    internal val redirectUrl: String,
 )

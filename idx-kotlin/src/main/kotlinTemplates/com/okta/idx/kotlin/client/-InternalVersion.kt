@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.okta.idx.android.directauth.sdk
+package com.okta.idx.kotlin.client
 
-import android.net.Uri
-
-sealed class SocialRedirect {
-    object Cancelled : SocialRedirect()
-    data class Data(val uri: Uri) : SocialRedirect()
-}
-
-typealias SocialRedirectListener = ((redirect: SocialRedirect) -> Unit)
+internal const val SDK_VERSION = "okta-idx-kotlin/$projectVersion"
