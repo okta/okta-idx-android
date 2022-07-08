@@ -1,0 +1,6 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:idx-kotlin
+com.okta.idx.kotlin.client
+com.okta.idx.kotlin.dto

@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":idx-kotlin:dokkaHtmlPartial/androidTestRelease":[],":idx-kotlin:dokkaHtmlPartial/debug":[],":idx-kotlin:dokkaHtmlPartial/main":[],":idx-kotlin:dokkaHtmlPartial/release":[],":idx-kotlin:dokkaHtmlPartial/testFixtures":[],":idx-kotlin:dokkaHtmlPartial/testFixturesDebug":[],":idx-kotlin:dokkaHtmlPartial/testFixturesRelease":[]}'
