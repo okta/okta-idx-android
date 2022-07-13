@@ -2,7 +2,7 @@ version: 2.1
 
 jobs:
   build:
-    resource_class: large
+    resource_class: xlarge
     docker:
       - image: cimg/android:2022.04.1
     steps:
