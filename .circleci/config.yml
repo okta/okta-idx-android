@@ -1,14 +1,10 @@
 version: 2.1
 
-orbs:
-  gradle: circleci/gradle@2.2.0
-  android: circleci/android@2.1.2
-
 jobs:
   build:
     resource_class: large
     docker:
-      - image: cimg/openjdk:18.0
+      - image: cimg/android:2022.04.1
     steps:
       - checkout
       - run:
@@ -17,7 +13,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/openjdk:18.0
+      - image: cimg/android:2022.04.1
     steps:
       - checkout
       - run:
