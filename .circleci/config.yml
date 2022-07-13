@@ -8,6 +8,8 @@ jobs:
     resource_class: large
     docker:
       - image: cimg/openjdk:18.0
+    environment:
+      ANDROID_HOME: ~/.android
     steps:
       - checkout
       - run:
@@ -17,6 +19,8 @@ jobs:
   lint:
     docker:
       - image: cimg/openjdk:18.0
+    environment:
+      ANDROID_HOME: ~/.android
     steps:
       - checkout
       - run:
