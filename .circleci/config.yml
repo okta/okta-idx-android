@@ -12,7 +12,7 @@ jobs:
     steps:
       - checkout
       - android/change-java-version:
-          - java-version: 18
+          java-version: 18
       - gradle/with_cache:
           steps:
             - run:
