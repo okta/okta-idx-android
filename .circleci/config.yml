@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   gradle: circleci/gradle@2.2.0
-  android: circleci/android@2.1.2
 
 jobs:
   build:
@@ -19,10 +18,9 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/openjdk:18.0.1
+      - image: cimg/android:2022.06.1
     steps:
       - checkout
-      - android/accept-licenses
       - run:
           name: Lint
           command: ./gradlew spotlessCheck apiCheck
