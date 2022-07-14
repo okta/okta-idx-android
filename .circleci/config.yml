@@ -1,8 +1,11 @@
 version: 2.1
 
+orbs:
+  gradle: circleci/gradle@2.2.0
+
 jobs:
   build:
-    resource_class: xlarge
+    resource_class: large
     docker:
       - image: cimg/android:2022.04.1
     steps:
