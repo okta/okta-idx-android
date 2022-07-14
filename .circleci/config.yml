@@ -11,6 +11,8 @@ jobs:
       - image: cimg/android:2022.06.1
     steps:
       - checkout
+      - android/change-java-version:
+          - java-version: 18
       - gradle/with_cache:
           steps:
             - run:
@@ -19,7 +21,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/openjdk:18.0.1
+      - image: cimg/android:2022.06.1
     steps:
       - checkout
       - run:
