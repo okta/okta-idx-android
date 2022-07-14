@@ -10,9 +10,11 @@ jobs:
       - image: cimg/android:2022.04.1
     steps:
       - checkout
-      - run:
-          name: Build
-          command: ./gradlew assembleDebug testDebugUnitTest assembleAndroidTest
+      - gradle/with_cache:
+          steps:
+            - run:
+                name: Build
+                command: ./gradlew assembleDebug testDebugUnitTest assembleAndroidTest
 
   lint:
     docker:
