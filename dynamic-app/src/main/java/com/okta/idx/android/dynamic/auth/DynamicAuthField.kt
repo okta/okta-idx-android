@@ -132,7 +132,7 @@ sealed class DynamicAuthField {
     ) : DynamicAuthField()
 
     /**
-     * `DynamicAuthField.Label` is displayed as a `TextView`, and represents an `IdxRemdiation.authenticators` capability of `IdxNumberChallengeCapability` label.
+     * `DynamicAuthField.Label` is displayed as a `TextView`, and represents an `IdxRemediation.authenticators` capability of `IdxNumberChallengeCapability` label.
      */
     data class Label(
         val label: String,

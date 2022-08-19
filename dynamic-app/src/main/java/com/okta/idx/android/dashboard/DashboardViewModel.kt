@@ -15,12 +15,15 @@
  */
 package com.okta.idx.android.dashboard
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.okta.authfoundation.client.OidcClientResult
 import com.okta.authfoundation.credential.RevokeTokenType
+import com.okta.authfoundation.credential.Token
 import com.okta.authfoundationbootstrap.CredentialBootstrap
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
@@ -28,21 +31,26 @@ import kotlinx.serialization.json.JsonPrimitive
 import timber.log.Timber
 
 internal class DashboardViewModel : ViewModel() {
+    private val _tokenState = mutableStateOf<Token?>(null)
+    val tokenState: State<Token?> = _tokenState
+
     private val _logoutStateLiveData = MutableLiveData<LogoutState>(LogoutState.Idle)
     val logoutStateLiveData: LiveData<LogoutState> = _logoutStateLiveData
 
-    private val _userInfoLiveData = MutableLiveData<Map<String, String>>(emptyMap())
-    val userInfoLiveData: LiveData<Map<String, String>> = _userInfoLiveData
+    private val _userInfoState = mutableStateOf<Map<String, String>>(emptyMap())
+    val userInfoState: State<Map<String, String>> = _userInfoState
 
     init {
         viewModelScope.launch {
-            when (val result = CredentialBootstrap.defaultCredential().getUserInfo()) {
+            val credential = CredentialBootstrap.defaultCredential()
+            _tokenState.value = credential.token
+            when (val result = credential.getUserInfo()) {
                 is OidcClientResult.Error -> {
                     Timber.e(result.exception, "User info request failed.")
                 }
                 is OidcClientResult.Success -> {
                     val successResult = result.result
-                    _userInfoLiveData.postValue(successResult.deserializeClaims(JsonObject.serializer()).asMap())
+                    _userInfoState.value = successResult.deserializeClaims(JsonObject.serializer()).asMap()
                 }
             }
         }

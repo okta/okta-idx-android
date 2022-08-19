@@ -7,6 +7,7 @@
     <string name="access_token">Access Token:</string>
     <string name="refresh_token">Refresh Token:</string>
     <string name="id_token">Id Token:</string>
+    <string name="device_secret">Device Secret:</string>
     <string name="scope">Scope:</string>
     <string name="claims">Claims</string>
     <string name="sign_out">Sign Out</string>
