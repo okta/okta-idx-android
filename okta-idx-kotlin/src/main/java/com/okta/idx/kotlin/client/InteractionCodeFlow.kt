@@ -16,8 +16,11 @@
 package com.okta.idx.kotlin.client
 
 import android.net.Uri
-import com.okta.authfoundation.client.OidcClient
-import com.okta.authfoundation.client.OidcClientResult
+import androidx.annotation.VisibleForTesting
+import com.okta.authfoundation.AuthFoundationDefaults
+import com.okta.authfoundation.client.OAuth2Client
+import com.okta.authfoundation.client.OAuth2ClientResult
+import com.okta.authfoundation.client.OidcConfiguration
 import com.okta.authfoundation.client.internal.SdkVersionsRegistry
 import com.okta.authfoundation.client.internal.performRequest
 import com.okta.authfoundation.credential.Token
@@ -38,47 +41,62 @@ import com.okta.idx.kotlin.dto.v1.Response as V1Response
 /**
  * The InteractionCodeFlow class is used to define and initiate an authentication workflow utilizing the Okta Identity Engine.
  */
-class InteractionCodeFlow internal constructor(
-    private val oidcClient: OidcClient,
-    val flowContext: InteractionCodeFlowContext,
-) {
+class InteractionCodeFlow constructor(private val client: OAuth2Client) {
     companion object {
         init {
             SdkVersionsRegistry.register(SDK_VERSION)
         }
+    }
 
-        /**
-         * Used to create an InteractionCodeFlow, and to start an authorization flow.
-         */
-        suspend fun OidcClient.createInteractionCodeFlow(
-            redirectUrl: String,
-            extraStartRequestParameters: Map<String, String> = emptyMap(),
-        ): OidcClientResult<InteractionCodeFlow> {
-            val interactContext = withContext(configuration.computeDispatcher) {
-                InteractContext.create(
-                    oidcClient = this@createInteractionCodeFlow,
-                    redirectUrl = redirectUrl,
-                    extraParameters = extraStartRequestParameters,
-                )
-            } ?: return endpointNotAvailableError()
+    @VisibleForTesting
+    internal lateinit var flowContext: InteractionCodeFlowContext
 
-            return performRequest(
-                InteractResponse.serializer(),
-                interactContext.request
-            ) {
-                val flowContext = InteractionCodeFlowContext(
-                    codeVerifier = interactContext.codeVerifier,
-                    interactionHandle = it.interactionHandle,
-                    state = interactContext.state,
-                    redirectUrl = redirectUrl,
-                    nonce = interactContext.nonce,
-                    maxAge = interactContext.maxAge,
-                )
-                InteractionCodeFlow(
-                    oidcClient = this,
-                    flowContext = flowContext,
-                )
-            }
+    /**
+     * Initializes a new [InteractionCodeFlow].
+     */
+    constructor() : this(OAuth2Client.default)
+
+    /**
+     * Initializes a new [InteractionCodeFlow].
+     *
+     * @param oidcConfiguration the [OidcConfiguration] specifying the authorization servers.
+     */
+    constructor(oidcConfiguration: OidcConfiguration) : this(
+        OAuth2Client.createFromConfiguration(oidcConfiguration)
+    )
+
+    /**
+     * Starts the authentication session. Returns an empty [OAuth2ClientResult.Success] on success, and
+     * a [OAuth2ClientResult.Error] with the corresponding exception on failure.
+     *
+     * @param redirectUri The redirect uri.
+     * @param extraStartRequestParameters Extra URL parameters to include in start request.
+     */
+    suspend fun start(
+        redirectUri: Uri,
+        extraStartRequestParameters: Map<String, String> = emptyMap()
+    ): OAuth2ClientResult<Unit> {
+        val redirectUriString = redirectUri.toString()
+        val interactContext = withContext(AuthFoundationDefaults.computeDispatcher) {
+            InteractContext.create(
+                client = client,
+                redirectUrl = redirectUriString,
+                extraParameters = extraStartRequestParameters,
+            )
+        } ?: return client.endpointNotAvailableError()
+
+        return client.performRequest(
+            InteractResponse.serializer(),
+            interactContext.request
+        ) {
+            flowContext = InteractionCodeFlowContext(
+                codeVerifier = interactContext.codeVerifier,
+                interactionHandle = it.interactionHandle,
+                state = interactContext.state,
+                redirectUrl = redirectUriString,
+                nonce = interactContext.nonce,
+                maxAge = interactContext.maxAge,
+            )
         }
     }
 
@@ -87,17 +105,17 @@ class InteractionCodeFlow internal constructor(
      *
      * This method is usually performed after an InteractionCodeFlow is created, but can also be called at any time to identify what next remediation steps are available to the user.
      */
-    suspend fun resume(): OidcClientResult<IdxResponse> {
-        val request = withContext(oidcClient.configuration.computeDispatcher) {
-            introspectRequest(oidcClient, flowContext)
+    suspend fun resume(): OAuth2ClientResult<IdxResponse> {
+        val request = withContext(client.configuration.computeDispatcher) {
+            introspectRequest(client, flowContext)
         }
 
-        return oidcClient.performRequest(
+        return client.performRequest(
             deserializationStrategy = V1Response.serializer(),
             request = request,
             shouldAttemptJsonDeserialization = ::idxShouldAttemptJsonDeserialization,
         ) {
-            it.toIdxResponse(oidcClient.configuration.json)
+            it.toIdxResponse(client.configuration.json)
         }
     }
 
@@ -106,17 +124,17 @@ class InteractionCodeFlow internal constructor(
      *
      * This method is used to proceed through the authentication flow, using the data assigned to the nested fields' `value` to make selections.
      */
-    suspend fun proceed(remediation: IdxRemediation): OidcClientResult<IdxResponse> {
-        val request = withContext(oidcClient.configuration.computeDispatcher) {
-            remediation.asJsonRequest(oidcClient)
+    suspend fun proceed(remediation: IdxRemediation): OAuth2ClientResult<IdxResponse> {
+        val request = withContext(client.configuration.computeDispatcher) {
+            remediation.asJsonRequest(client)
         }
 
-        return oidcClient.performRequest(
+        return client.performRequest(
             deserializationStrategy = V1Response.serializer(),
             request = request,
             shouldAttemptJsonDeserialization = ::idxShouldAttemptJsonDeserialization,
         ) {
-            it.toIdxResponse(oidcClient.configuration.json).also { response ->
+            it.toIdxResponse(client.configuration.json).also { response ->
                 response.remediations.firstOrNull()?.copyValuesFromPrevious(remediation)
             }
         }
@@ -127,18 +145,18 @@ class InteractionCodeFlow internal constructor(
      */
     suspend fun exchangeInteractionCodeForTokens(
         remediation: IdxRemediation
-    ): OidcClientResult<Token> {
+    ): OAuth2ClientResult<Token> {
         if (remediation.type != IdxRemediation.Type.ISSUE) {
-            return OidcClientResult.Error(IllegalStateException("Invalid remediation."))
+            return OAuth2ClientResult.Error(IllegalStateException("Invalid remediation."))
         }
 
-        val request = withContext(oidcClient.configuration.computeDispatcher) {
+        val request = withContext(client.configuration.computeDispatcher) {
             remediation["code_verifier"]?.value = flowContext.codeVerifier
 
             remediation.asFormRequest()
         }
 
-        return oidcClient.tokenRequest(request, flowContext.nonce, flowContext.maxAge)
+        return client.tokenRequest(request, flowContext.nonce, flowContext.maxAge)
     }
 
     /**
@@ -158,10 +176,11 @@ class InteractionCodeFlow internal constructor(
                 return IdxRedirectResult.Error(error)
             }
             return when (val resumeResult = resume()) {
-                is OidcClientResult.Error -> {
+                is OAuth2ClientResult.Error -> {
                     IdxRedirectResult.Error("Failed to resume.", resumeResult.exception)
                 }
-                is OidcClientResult.Success -> {
+
+                is OAuth2ClientResult.Success -> {
                     IdxRedirectResult.InteractionRequired(resumeResult.result)
                 }
             }
@@ -181,10 +200,11 @@ class InteractionCodeFlow internal constructor(
             return when (
                 val result = exchangeInteractionCodeForTokens(interactionCodeQueryParameter)
             ) {
-                is OidcClientResult.Error -> {
+                is OAuth2ClientResult.Error -> {
                     IdxRedirectResult.Error("Failed to exchangeCodes.", result.exception)
                 }
-                is OidcClientResult.Success -> {
+
+                is OAuth2ClientResult.Success -> {
                     IdxRedirectResult.Tokens(result.result)
                 }
             }
@@ -192,12 +212,12 @@ class InteractionCodeFlow internal constructor(
         return IdxRedirectResult.Error("Unable to handle redirect url.")
     }
 
-    private suspend fun exchangeInteractionCodeForTokens(interactionCode: String): OidcClientResult<Token> {
-        val request = withContext(oidcClient.configuration.computeDispatcher) {
-            tokenRequestFromInteractionCode(oidcClient, flowContext, interactionCode)
+    private suspend fun exchangeInteractionCodeForTokens(interactionCode: String): OAuth2ClientResult<Token> {
+        val request = withContext(client.configuration.computeDispatcher) {
+            tokenRequestFromInteractionCode(client, flowContext, interactionCode)
         }
 
-        return oidcClient.tokenRequest(request, flowContext.nonce, flowContext.maxAge)
+        return client.tokenRequest(request, flowContext.nonce, flowContext.maxAge)
     }
 
     /** IdxResponse can come back in both HTTP 200 as well as others such as 400s. */

@@ -16,7 +16,7 @@
 package com.okta.nativeauthentication
 
 import com.google.common.truth.Truth.assertThat
-import com.okta.authfoundation.client.OidcClientResult
+import com.okta.authfoundation.client.OAuth2ClientResult
 import com.okta.idx.kotlin.client.InteractionCodeFlow
 import com.okta.idx.kotlin.dto.IdxRemediation
 import com.okta.idx.kotlin.dto.IdxResponse
@@ -26,16 +26,19 @@ import com.okta.testing.network.NetworkRule
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
+@RunWith(RobolectricTestRunner::class)
 internal class RealIdxResponseTransformerTest {
     @get:Rule val networkRule = NetworkRule()
 
     private val idxResponseFactory = IdxResponseFactory(networkRule)
 
     private val noInteractionsResponseTransformer: suspend (
-        resultProducer: suspend (InteractionCodeFlow) -> OidcClientResult<IdxResponse>
+        resultProducer: suspend (InteractionCodeFlow) -> OAuth2ClientResult<IdxResponse>
     ) -> Unit = {
         throw AssertionError("Not expected")
     }

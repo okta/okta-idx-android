@@ -16,7 +16,7 @@
 package com.okta.nativeauthentication.form.transformer
 
 import com.google.common.truth.Truth.assertThat
-import com.okta.authfoundation.client.OidcClientResult
+import com.okta.authfoundation.client.OAuth2ClientResult
 import com.okta.idx.kotlin.client.InteractionCodeFlow
 import com.okta.idx.kotlin.dto.IdxResponse
 import com.okta.nativeauthentication.RealIdxResponseTransformer
@@ -27,14 +27,17 @@ import com.okta.testing.network.NetworkRule
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 internal class SignInTitleTransformerTest {
     @get:Rule val networkRule = NetworkRule()
 
     private val idxResponseFactory = IdxResponseFactory(networkRule)
 
     private fun getFormFromJson(json: String): Form = runBlocking {
-        val responseTransformer: suspend (resultProducer: suspend (InteractionCodeFlow) -> OidcClientResult<IdxResponse>) -> Unit = {
+        val responseTransformer: suspend (resultProducer: suspend (InteractionCodeFlow) -> OAuth2ClientResult<IdxResponse>) -> Unit = {
             throw AssertionError("Not expected")
         }
         val formBuilder = RealIdxResponseTransformer().transform(responseTransformer, idxResponseFactory.fromJson(json)) { _, _ -> }
