@@ -16,6 +16,7 @@
 package com.okta.idx.kotlin.client
 
 import com.okta.authfoundation.AuthFoundationDefaults
+import com.okta.authfoundation.InternalAuthFoundationApi
 import com.okta.authfoundation.client.DeviceTokenProvider
 import kotlinx.coroutines.runBlocking
 import okhttp3.Cookie
@@ -23,7 +24,8 @@ import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import kotlin.time.Duration.Companion.seconds
 
-internal class DeviceTokenCookieJar : CookieJar {
+@InternalAuthFoundationApi
+class DeviceTokenCookieJar : CookieJar {
     private val savedCookiesCache = mutableMapOf<String, List<Cookie>>()
     private val oidcClock by lazy { AuthFoundationDefaults.clock }
 
