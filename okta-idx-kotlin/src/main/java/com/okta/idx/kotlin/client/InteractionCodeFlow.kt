@@ -109,7 +109,7 @@ class InteractionCodeFlow(val client: OAuth2Client) {
      */
     suspend fun resume(): OAuth2ClientResult<IdxResponse> {
         if (!::flowContext.isInitialized) {
-            return OAuth2ClientResult.Error(IllegalStateException("InteractionCodeFlow not started"))
+            return OAuth2ClientResult.Error(IllegalStateException("InteractionCodeFlow not started."))
         }
         val request = withContext(client.configuration.computeDispatcher) {
             introspectRequest(client, flowContext)
@@ -224,6 +224,9 @@ class InteractionCodeFlow(val client: OAuth2Client) {
     }
 
     private suspend fun exchangeInteractionCodeForTokens(interactionCode: String): OAuth2ClientResult<Token> {
+        if (!::flowContext.isInitialized) {
+            return OAuth2ClientResult.Error(IllegalStateException("InteractionCodeFlow not started."))
+        }
         val request = withContext(client.configuration.computeDispatcher) {
             tokenRequestFromInteractionCode(client, flowContext, interactionCode)
         }
