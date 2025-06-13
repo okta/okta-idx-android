@@ -23,6 +23,7 @@ import com.okta.idx.kotlin.dto.IdxRemediation.Type
 import kotlinx.coroutines.delay
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.decodeBase64
+import org.json.JSONObject
 
 /**
  * Represents a collection of capabilities.
@@ -178,6 +179,33 @@ class IdxTotpCapability internal constructor(
     fun asImage(): Bitmap? {
         val bytes = imageData.substringAfter("data:image/png;base64,").decodeBase64()?.toByteArray() ?: return null
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+}
+
+/**
+ * Describes the WebAuthn capability associated with an [IdxAuthenticator].
+ *
+ * @property activationData The JSON string containing the public key credential creation options for WebAuthn activation.
+ */
+class IdxWebAuthnCapability internal constructor(
+    private val activationData: String,
+) : IdxAuthenticator.Capability {
+
+    /**
+     * Returns the public key credential creation options as a JSON string.
+     *
+     * @param rpId Optional relying party ID. If provided and not blank, overrides the default `rp.id` in the activation data.
+     * @return A [Result] containing the JSON string with the `rp.id` field set to [rpId] if specified, or the original activation data otherwise.
+     */
+    fun publicKeyCredentialCreationOptions(rpId: String? = null): Result<String> = runCatching {
+        return if (rpId?.isNotBlank() == true) {
+            val json = JSONObject(activationData).apply {
+                getJSONObject("rp").apply {
+                    put("id", rpId)
+                }
+            }.toString()
+            Result.success(json)
+        } else Result.success(activationData)
     }
 }
 

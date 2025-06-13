@@ -26,6 +26,7 @@ import com.okta.idx.kotlin.dto.IdxRemediationCollection
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.serializer
+import org.json.JSONObject
 
 internal fun Response.toIdxRemediationCollection(
     json: Json,
@@ -208,4 +209,31 @@ private fun List<FormValue>?.toForm(
     return IdxRemediation.Form(
         map { it.toIdxField(json, parsingContext, parentFormValue) }
     )
+}
+
+/**
+ * Updates the remediation with the registration response.
+ *
+ * @param registrationResponseJson JSON string containing the registration response.
+ * @return `Result<IdxRemediation>` with the updated remediation.
+ * @throws IllegalArgumentException if required fields are missing in the response or remediation form.
+ * @throws JSONException if the JSON string is invalid. Or if the response does not contain the expected fields.
+ */
+fun IdxRemediation.withRegistrationResponse(registrationResponseJson: String): Result<IdxRemediation> = runCatching {
+    val createCredentialResponseJson = JSONObject(registrationResponseJson)
+    val response = createCredentialResponseJson.getJSONObject("response")
+    val attestationObject = response.getString("attestationObject").takeIf { it.isNotBlank() }
+        ?: throw IllegalArgumentException("The 'attestationObject' field is not present in the create credential response.")
+    val clientDataJSON = response.getString("clientDataJSON").takeIf { it.isNotBlank() }
+        ?: throw IllegalArgumentException("The 'clientDataJSON' field is not present in the create credential response.")
+
+    form["credentials.attestation"]?.apply {
+        value = attestationObject
+    } ?: throw IllegalArgumentException("The 'credentials.attestation' field is not present in the remediation form.")
+
+    form["credentials.clientData"]?.apply {
+        value = clientDataJSON
+    } ?: throw IllegalArgumentException("The 'credentials.clientData' field is not present in the remediation form.")
+
+    return Result.success(this)
 }

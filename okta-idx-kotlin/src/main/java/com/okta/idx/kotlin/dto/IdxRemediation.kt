@@ -171,7 +171,7 @@ class IdxRemediation internal constructor(
         /**
          * Describes an individual field within a form, used to collect and submit information from the user to proceed through the authentication workflow.
          */
-        class Field internal constructor(
+        data class Field internal constructor(
             /** The programmatic name for this form value. */
             val name: String?,
             /** The user-readable label describing this form value. */
