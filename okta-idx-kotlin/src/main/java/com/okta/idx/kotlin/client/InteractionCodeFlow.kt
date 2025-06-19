@@ -73,18 +73,29 @@ class InteractionCodeFlow(val client: OAuth2Client) {
      *
      * @param redirectUri The redirect uri.
      * @param extraStartRequestParameters Extra URL parameters to include in start request.
+     * @param state An optional state value.
      */
     suspend fun start(
         redirectUri: Uri,
-        extraStartRequestParameters: Map<String, String> = emptyMap()
+        extraStartRequestParameters: Map<String, String> = emptyMap(),
+        state: String? = null
     ): OAuth2ClientResult<Unit> {
         val redirectUriString = redirectUri.toString()
         val interactContext = withContext(AuthFoundationDefaults.computeDispatcher) {
-            InteractContext.create(
-                client = client,
-                redirectUrl = redirectUriString,
-                extraParameters = extraStartRequestParameters,
-            )
+            if (state != null) {
+                InteractContext.create(
+                    client = client,
+                    redirectUrl = redirectUriString,
+                    extraParameters = extraStartRequestParameters,
+                    state = state
+                )
+            } else {
+                InteractContext.create(
+                    client = client,
+                    redirectUrl = redirectUriString,
+                    extraParameters = extraStartRequestParameters
+                )
+            }
         } ?: return client.endpointNotAvailableError()
 
         return client.performRequest(
