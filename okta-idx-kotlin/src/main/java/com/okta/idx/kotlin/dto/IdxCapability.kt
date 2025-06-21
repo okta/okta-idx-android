@@ -183,18 +183,18 @@ class IdxTotpCapability internal constructor(
 }
 
 /**
- * Describes the WebAuthn capability associated with an [IdxAuthenticator].
+ * Describes the WebAuthn registration capability associated with an [IdxAuthenticator].
  *
  * @property activationData The JSON string containing the public key credential creation options for WebAuthn activation.
  */
-class IdxWebAuthnCapability internal constructor(
+class IdxWebAuthnRegistrationCapability internal constructor(
     private val activationData: String,
 ) : IdxAuthenticator.Capability {
 
     /**
      * Returns the public key credential creation options as a JSON string.
      *
-     * @param rpId Optional relying party ID. If provided and not blank, overrides the default `rp.id` in the activation data.
+     * @param rpId Optional relying party ID. If provided and not blank, overrides the default `rp.id` in the activation data if present.
      * @return A [Result] containing the JSON string with the `rp.id` field set to [rpId] if specified, or the original activation data otherwise.
      */
     fun publicKeyCredentialCreationOptions(rpId: String? = null): Result<String> = runCatching {
@@ -206,6 +206,29 @@ class IdxWebAuthnCapability internal constructor(
             }.toString()
             Result.success(json)
         } else Result.success(activationData)
+    }
+}
+
+/**
+ * Describes the WebAuthn authentication capability associated with an [IdxAuthenticator].
+ *
+ * @property challengeData The JSON string containing the public key credential creation options for WebAuthn activation.
+ */
+class IdxWebAuthnAuthenticationCapability internal constructor(
+    private val _challengeData: String,
+) : IdxAuthenticator.Capability {
+
+    /**
+     * Returns the challengeData.
+     *
+     * @param rpId Optional relying party ID. If provided and not blank, overrides the default `rpId` in the challenge data if present.
+     * @return A [Result] containing the JSON string with the `rpId` field set to [rpId] if specified, or the original challenge data otherwise.
+     */
+    fun challengeData(rpId: String? = null): Result<String> = runCatching {
+        return if (rpId?.isNotBlank() == true) {
+            val json = JSONObject(_challengeData).apply { put("rpId", rpId) }.toString()
+            Result.success(json)
+        } else Result.success(_challengeData)
     }
 }
 

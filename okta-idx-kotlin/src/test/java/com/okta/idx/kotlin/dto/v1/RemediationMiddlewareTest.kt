@@ -16,6 +16,7 @@
 package com.okta.idx.kotlin.dto.v1
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.okta.idx.kotlin.dto.IdxAuthenticator
 import com.okta.idx.kotlin.dto.IdxAuthenticatorCollection
 import com.okta.idx.kotlin.dto.IdxCapabilityCollection
 import com.okta.idx.kotlin.dto.IdxMessageCollection
@@ -265,5 +266,22 @@ class RemediationMiddlewareTest {
         assertThat(exception, notNullValue())
         assertThat(exception, instanceOf(IllegalArgumentException::class.java))
         assertThat(exception?.message, `is`("The 'clientDataJSON' field is not present in the create credential response."))
+    }
+
+    fun Field.copy(
+        name: String? = this.name,
+        label: String? = this.label,
+        type: String = this.type,
+        value: Any? = this.value,
+        isMutable: Boolean = this.isMutable,
+        isRequired: Boolean = this.isRequired,
+        isSecret: Boolean = this.isSecret,
+        form: Form? = this.form,
+        options: List<Field>? = this.options,
+        messages: IdxMessageCollection = this.messages,
+        authenticator: IdxAuthenticator? = this.authenticator,
+        isVisible: Boolean = this.isVisible,
+    ): Field {
+        return Field(name, label, type, value, isMutable, isRequired, isSecret, form, options, messages, authenticator, isVisible)
     }
 }

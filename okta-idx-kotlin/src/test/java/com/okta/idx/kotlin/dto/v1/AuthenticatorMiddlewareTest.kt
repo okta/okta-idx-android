@@ -18,8 +18,8 @@ package com.okta.idx.kotlin.dto.v1
 import com.google.common.truth.Truth.assertThat
 import com.okta.idx.kotlin.dto.IdxAuthenticator
 import com.okta.idx.kotlin.dto.IdxSendCapability
-import com.okta.idx.kotlin.dto.IdxWebAuthnCapability
-import kotlinx.serialization.decodeFromString
+import com.okta.idx.kotlin.dto.IdxWebAuthnAuthenticationCapability
+import com.okta.idx.kotlin.dto.IdxWebAuthnRegistrationCapability
 import kotlinx.serialization.json.Json
 import org.junit.Test
 
@@ -76,7 +76,7 @@ class AuthenticatorMiddlewareTest {
     }
 
     @Test
-    fun testToWebAuthnCapability() {
+    fun `to webAuthnRegistrationCapability with valid contextualData, expect publicKeyCredentialCreationOptions returned`() {
         // arrange
         val authenticatorJson = """
       {
@@ -132,11 +132,102 @@ class AuthenticatorMiddlewareTest {
         val authenticator = v1Authenticator.toIdxAuthenticator(json, IdxAuthenticator.State.ENROLLING)
 
         // assert
-        val pubKeyCreationJson = requireNotNull(authenticator.capabilities.get<IdxWebAuthnCapability>()).publicKeyCredentialCreationOptions().getOrThrow()
+        val pubKeyCreationJson = requireNotNull(authenticator.capabilities.get<IdxWebAuthnRegistrationCapability>()).publicKeyCredentialCreationOptions().getOrThrow()
 
         assertThat(pubKeyCreationJson).contains("pubKeyCredParams")
         assertThat(pubKeyCreationJson).contains("challenge")
         assertThat(pubKeyCreationJson).contains("rp")
         assertThat(pubKeyCreationJson).contains("attestation")
+    }
+
+    @Test
+    fun `to webAuthnRegistrationCapability with empty contextualData, expect null value`() {
+        // arrange
+        val authenticatorJson = """
+      {
+          "contextualData": {
+          },
+          "type": "security_key",
+          "key": "webauthn",
+          "id": "authenticatorId",
+          "displayName": "Security Key or Biometric",
+          "methods": [
+            {
+              "type": "webauthn"
+            }
+          ]
+      }
+        """.trimIndent()
+
+        val v1Authenticator = json.decodeFromString<Authenticator>(authenticatorJson)
+        // act
+        val authenticator = v1Authenticator.toIdxAuthenticator(json, IdxAuthenticator.State.ENROLLING)
+
+        // assert
+        val pubKeyCreationJson = authenticator.capabilities.get<IdxWebAuthnRegistrationCapability>()
+        assertThat(pubKeyCreationJson).isNull()
+    }
+
+    @Test
+    fun `to webAuthnAuthenticationCapability with valid contextualData, expect publicKeyCredentialCreationOptions returned`() {
+        val contextualData = """
+            {
+              "contextualData": {
+                "challengeData": {
+                  "challenge": "testChallenge",
+                  "userVerification": "preferred",
+                  "extensions": {
+                    "appid": "https://test.test.com"
+                  }
+                }
+              },
+              "type": "security_key",
+              "key": "webauthn",
+              "id": "testId",
+              "displayName": "Security Key or Biometric",
+              "methods": [
+                {
+                  "type": "webauthn"
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val v1Authenticator = json.decodeFromString<Authenticator>(contextualData)
+        // act
+        val authenticator = v1Authenticator.toIdxAuthenticator(json, IdxAuthenticator.State.ENROLLING)
+
+        // assert
+        val challengeData = requireNotNull(authenticator.capabilities.get<IdxWebAuthnAuthenticationCapability>()).challengeData().getOrThrow()
+
+        assertThat(challengeData).contains("testChallenge")
+        assertThat(challengeData).contains("userVerification")
+    }
+
+    @Test
+    fun `to webAuthnAuthenticationCapability with valid empty contextualData, expect null returned`() {
+        val contextualData = """
+            {
+              "contextualData": {
+              },
+              "type": "security_key",
+              "key": "webauthn",
+              "id": "testId",
+              "displayName": "Security Key or Biometric",
+              "methods": [
+                {
+                  "type": "webauthn"
+                }
+              ]
+            }
+        """.trimIndent()
+        val v1Authenticator = json.decodeFromString<Authenticator>(contextualData)
+
+        // act
+        val authenticator = v1Authenticator.toIdxAuthenticator(json, IdxAuthenticator.State.ENROLLING)
+
+        // assert
+        val capability = authenticator.capabilities.get<IdxWebAuthnAuthenticationCapability>()
+        assertThat(capability).isNull()
     }
 }

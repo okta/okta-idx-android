@@ -61,10 +61,22 @@ class IdxWebAuthnCapabilityTest {
         }
     """.trimIndent()
 
+    private val challengeData = """
+        {
+            "challengeData": {
+                "challenge": "testChallenge",
+                "userVerification": "preferred",
+                "extensions": {
+                    "appid": "https://test.test.com"
+                }
+            }
+        }
+    """.trimIndent()
+
     @Test
     fun `publicKeyCredentialCreationOptions returns original data when rpId is null`() {
         // arrange
-        val capability = IdxWebAuthnCapability(activationData)
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
 
         // act
         val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
@@ -76,7 +88,7 @@ class IdxWebAuthnCapabilityTest {
     @Test
     fun `publicKeyCredentialCreationOptions returns original data when rpId is blank`() {
         // arrange
-        val capability = IdxWebAuthnCapability(activationData)
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
 
         // act
         val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
@@ -88,7 +100,7 @@ class IdxWebAuthnCapabilityTest {
     @Test
     fun `publicKeyCredentialCreationOptions overrides rpId when provided`() {
         // arrange
-        val capability = IdxWebAuthnCapability(activationData)
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
         val customRpId = "customRpId"
 
         // act
@@ -102,10 +114,60 @@ class IdxWebAuthnCapabilityTest {
     fun `publicKeyCredentialCreationOptions returns failure on invalid JSON`() {
         // arrange
         val invalidData = "{invalidjson"
-        val capability = IdxWebAuthnCapability(invalidData)
+        val capability = IdxWebAuthnRegistrationCapability(invalidData)
 
         // act
         val result = capability.publicKeyCredentialCreationOptions("customRpId").exceptionOrNull()
+
+        // assert
+        assertThat(result is JSONException).isTrue()
+    }
+
+    @Test
+    fun `challengeData returns original data when rpId is null`() {
+        // arrange
+        val capability = IdxWebAuthnAuthenticationCapability(challengeData)
+
+        // act
+        val result = capability.challengeData().getOrThrow()
+
+        // assert
+        assertThat(result).isEqualTo(challengeData)
+    }
+
+    @Test
+    fun `challengeData returns original data when rpId is blank`() {
+        // arrange
+        val capability = IdxWebAuthnAuthenticationCapability(challengeData)
+
+        // act
+        val result = capability.challengeData().getOrThrow()
+
+        // assert
+        assertThat(result).isEqualTo(challengeData)
+    }
+
+    @Test
+    fun `challengeData overrides rpId when provided`() {
+        // arrange
+        val capability = IdxWebAuthnAuthenticationCapability(challengeData)
+        val customRpId = "customRpId"
+
+        // act
+        val result = capability.challengeData(customRpId).getOrThrow()
+
+        // assert
+        assertThat(JSONObject(result).getString("rpId")).isEqualTo(customRpId)
+    }
+
+    @Test
+    fun `challengeData returns failure on invalid JSON`() {
+        // arrange
+        val invalidData = "{invalidjson"
+        val capability = IdxWebAuthnAuthenticationCapability(invalidData)
+
+        // act
+        val result = capability.challengeData("customRpId").exceptionOrNull()
 
         // assert
         assertThat(result is JSONException).isTrue()
