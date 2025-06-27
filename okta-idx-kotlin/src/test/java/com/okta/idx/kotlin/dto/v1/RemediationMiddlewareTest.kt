@@ -16,6 +16,7 @@
 package com.okta.idx.kotlin.dto.v1
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.okta.idx.kotlin.dto.IdxAuthenticator
 import com.okta.idx.kotlin.dto.IdxAuthenticatorCollection
 import com.okta.idx.kotlin.dto.IdxCapabilityCollection
@@ -23,6 +24,8 @@ import com.okta.idx.kotlin.dto.IdxMessageCollection
 import com.okta.idx.kotlin.dto.IdxRemediation
 import com.okta.idx.kotlin.dto.IdxRemediation.Form
 import com.okta.idx.kotlin.dto.IdxRemediation.Form.Field
+import com.okta.idx.kotlin.dto.IdxWebAuthnAuthenticationCapability
+import com.okta.idx.kotlin.dto.IdxWebAuthnRegistrationCapability
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -36,11 +39,102 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RemediationMiddlewareTest {
 
+    private val base64UrlString = "Pj8-Pw"
+    private val base64String = "Pj8+Pw=="
+    private val simpleB64String = "c2lnbmF0dXJl"
+
+    private fun createChallengeRemediation(
+        hasCapability: Boolean = true,
+        formFields: List<String> = listOf(
+            "authenticatorData",
+            "clientData",
+            "signatureData"
+        )
+    ): IdxRemediation {
+        val challengeData = """
+            "challengeData": {
+                "challenge": "7lnfbItamo2HerI_cLsjFH7t9ubvh89r",
+                "userVerification": "preferred",
+                "extensions": {
+                    "appid": "https://test.test.com"
+                }
+            }
+        """.trimIndent()
+
+        val capabilities = if (hasCapability) {
+            setOf(IdxWebAuthnAuthenticationCapability(challengeData))
+        } else {
+            emptySet()
+        }
+
+        val authenticator = IdxAuthenticator(
+            key = "test-authenticator",
+            displayName = "Test Authenticator",
+            type = IdxAuthenticator.Kind.SECURITY_KEY,
+            methods = listOf(IdxAuthenticator.Method.WEB_AUTHN),
+            state = IdxAuthenticator.State.ENROLLING,
+            capabilities = IdxCapabilityCollection(capabilities),
+            id = "fakeId",
+            methodNames = listOf("webauthn"),
+        )
+
+        val fields = formFields.map { fieldName ->
+            Field(
+                name = fieldName, isMutable = true,
+                label = fieldName,
+                type = "string",
+                isRequired = false,
+                isSecret = false,
+                form = null,
+                options = emptyList(),
+                messages = IdxMessageCollection(emptyList()),
+                authenticator = null,
+                isVisible = false,
+                _value = ""
+            )
+        }
+        val credentialField = Field(
+            name = "credentials", isMutable = true,
+            label = "credentials",
+            type = "string",
+            isRequired = false,
+            isSecret = false,
+            form = Form(fields),
+            options = emptyList(),
+            messages = IdxMessageCollection(emptyList()),
+            authenticator = null,
+            isVisible = false,
+            _value = ""
+        )
+
+        return IdxRemediation(
+            type = IdxRemediation.Type.CHALLENGE_AUTHENTICATOR,
+            name = "challenge-authenticator",
+            form = Form(listOf(credentialField)),
+            authenticators = IdxAuthenticatorCollection(listOf(authenticator)),
+            capabilities = IdxCapabilityCollection(emptySet()),
+            method = "method",
+            href = "https://test.okta.com/idp/idx/identify".toHttpUrl(),
+            accepts = null
+        )
+    }
+
+    private val authenticator = IdxAuthenticator(
+        key = "test-authenticator",
+        displayName = "Test Authenticator",
+        type = IdxAuthenticator.Kind.SECURITY_KEY,
+        methods = listOf(IdxAuthenticator.Method.WEB_AUTHN),
+        state = IdxAuthenticator.State.ENROLLING,
+        capabilities = IdxCapabilityCollection(setOf(IdxWebAuthnRegistrationCapability("activationData"))),
+        id = "fakeId",
+        methodNames = listOf("webauthn"),
+    )
+
     private val remediationEmptyForm = IdxRemediation(
         type = IdxRemediation.Type.UNKNOWN,
         name = "test",
         form = Form(emptyList()),
-        authenticators = IdxAuthenticatorCollection(emptyList()),
+        authenticators = IdxAuthenticatorCollection(listOf(authenticator)),
         capabilities = IdxCapabilityCollection(emptySet()),
         method = "method",
         href = "https://test.okta.com/idp/idx/identify".toHttpUrl(),
@@ -101,7 +195,7 @@ class RemediationMiddlewareTest {
             type = IdxRemediation.Type.UNKNOWN,
             name = "test",
             form = form,
-            authenticators = IdxAuthenticatorCollection(emptyList()),
+            authenticators = IdxAuthenticatorCollection(listOf(authenticator)),
             capabilities = IdxCapabilityCollection(emptySet()),
             method = "method",
             href = "https://test.okta.com/idp/idx/identify".toHttpUrl(),
@@ -124,7 +218,7 @@ class RemediationMiddlewareTest {
             type = IdxRemediation.Type.UNKNOWN,
             name = "test",
             form = form,
-            authenticators = IdxAuthenticatorCollection(emptyList()),
+            authenticators = IdxAuthenticatorCollection(listOf(authenticator)),
             capabilities = IdxCapabilityCollection(emptySet()),
             method = "method",
             href = "https://test.okta.com/idp/idx/identify".toHttpUrl(),
@@ -162,7 +256,7 @@ class RemediationMiddlewareTest {
             type = IdxRemediation.Type.UNKNOWN,
             name = "test",
             form = Form(listOf(credentialField)),
-            authenticators = IdxAuthenticatorCollection(emptyList()),
+            authenticators = IdxAuthenticatorCollection(listOf(authenticator)),
             capabilities = IdxCapabilityCollection(emptySet()),
             method = "method",
             href = "https://test.okta.com/idp/idx/identify".toHttpUrl(),
@@ -266,6 +360,212 @@ class RemediationMiddlewareTest {
         assertThat(exception, notNullValue())
         assertThat(exception, instanceOf(IllegalArgumentException::class.java))
         assertThat(exception?.message, `is`("The 'clientDataJSON' field is not present in the create credential response."))
+    }
+
+    @Test
+    fun `withRegistrationResponse throws if remediation does not have webauthn capability`() {
+        // arrange
+        val form = Form(emptyList())
+        val remediation = IdxRemediation(
+            type = IdxRemediation.Type.UNKNOWN,
+            name = "test",
+            form = form,
+            authenticators = IdxAuthenticatorCollection(listOf()),
+            capabilities = IdxCapabilityCollection(emptySet()),
+            method = "method",
+            href = "https://test.okta.com/idp/idx/identify".toHttpUrl(),
+            accepts = null
+        )
+
+        // act
+        val exception = remediation.withRegistrationResponse(registrationResponseJson).exceptionOrNull()
+
+        // assert
+        assertThat(exception, notNullValue())
+        assertThat(exception, instanceOf(IllegalArgumentException::class.java))
+        assertThat(exception?.message, `is`("This remediation does not have a WebAuthn registration capability."))
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson succeeds with valid Base64Url data`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "$base64UrlString",
+                "authenticatorData": "$base64UrlString",
+                "signature": "$base64UrlString"
+              }
+            }
+        """.trimIndent()
+
+        // act
+        val updatedRemediation = remediation.withAuthenticationResponseJson(authResponseJson).getOrThrow()
+
+        // assert
+        assertThat(updatedRemediation.form["credentials.clientData"]?.value).isEqualTo(base64String)
+        assertThat(updatedRemediation.form["credentials.authenticatorData"]?.value).isEqualTo(base64String)
+        assertThat(updatedRemediation.form["credentials.signatureData"]?.value).isEqualTo(base64String)
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson succeeds with valid standard Base64 data`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "$simpleB64String",
+                "authenticatorData": "$simpleB64String",
+                "signature": "$simpleB64String"
+              }
+            }
+        """.trimIndent()
+
+        // act
+        val updatedRemediation = remediation.withAuthenticationResponseJson(authResponseJson).getOrThrow()
+
+        // assert
+        assertThat(updatedRemediation.form["credentials.clientData"]?.value).isEqualTo(simpleB64String)
+        assertThat(updatedRemediation.form["credentials.authenticatorData"]?.value).isEqualTo(simpleB64String)
+        assertThat(updatedRemediation.form["credentials.signatureData"]?.value).isEqualTo(simpleB64String)
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails when capability is missing`() {
+        // arrange
+        val remediation = createChallengeRemediation(hasCapability = false)
+        val authResponseJson = """{"response":{}}"""
+
+        // act
+        val exception = remediation.withAuthenticationResponseJson(authResponseJson).exceptionOrNull()
+
+        // assert
+        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).hasMessageThat().isEqualTo("This remediation does not have a WebAuthn authentication capability.")
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails when clientDataJson is missing from response`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "",
+                "authenticatorData": "data",
+                "signature": "data"
+              }
+            }
+        """.trimIndent()
+
+        // act
+        val exception = remediation.withAuthenticationResponseJson(authResponseJson).exceptionOrNull()
+
+        // assert
+        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).hasMessageThat().isEqualTo("The 'clientDataJson' field is not present in the authentication response.")
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails when authenticatorData is missing from response`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "data",
+                "authenticatorData": "",
+                "signature": "data"
+              }
+            }
+        """.trimIndent()
+
+        // act
+        val exception = remediation.withAuthenticationResponseJson(authResponseJson).exceptionOrNull()
+
+        // assert
+        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).hasMessageThat().isEqualTo("The 'authenticatorData' field is not present in the authentication response.")
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails when signature is missing from response`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "data",
+                "authenticatorData": "data",
+                "signature" : ""
+              }
+            }
+        """.trimIndent()
+
+        // act
+        val exception = remediation.withAuthenticationResponseJson(authResponseJson).exceptionOrNull()
+
+        // assert
+        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).hasMessageThat().isEqualTo("The 'signature' field is not present in the authentication response.")
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails when form field is missing`() {
+        // arrange
+        val remediation = createChallengeRemediation(formFields = listOf("credentials.clientData", "credentials.signatureData"))
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "$simpleB64String",
+                "authenticatorData": "$simpleB64String",
+                "signature": "$simpleB64String"
+              }
+            }
+        """.trimIndent()
+
+        // act
+        val exception = remediation.withAuthenticationResponseJson(authResponseJson).exceptionOrNull()
+
+        // assert
+        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).hasMessageThat().isEqualTo("The 'credentials.authenticatorData' field is not present in the remediation form.")
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails with invalid JSON`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val invalidJson = """{"response": { "clientDataJson": "data" """
+
+        // act
+        val result = remediation.withAuthenticationResponseJson(invalidJson)
+
+        // assert
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()).isInstanceOf(JSONException::class.java)
+    }
+
+    @Test
+    fun `withAuthenticationResponseJson fails with invalid Base64 data`() {
+        // arrange
+        val remediation = createChallengeRemediation()
+        val authResponseJson = """
+            {
+              "response": {
+                "clientDataJson": "$simpleB64String",
+                "authenticatorData": "this is not valid base64!",
+                "signature": "$simpleB64String"
+              }
+            }
+        """.trimIndent()
+
+        val result = remediation.withAuthenticationResponseJson(authResponseJson)
+        assertThat(result.isFailure).isTrue()
+        // The exception comes from the Base64 decoder
+        assertThat(result.exceptionOrNull()).isInstanceOf(IllegalArgumentException::class.java)
     }
 
     fun Field.copy(

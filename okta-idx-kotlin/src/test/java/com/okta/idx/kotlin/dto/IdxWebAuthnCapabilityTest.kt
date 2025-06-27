@@ -45,7 +45,7 @@ class IdxWebAuthnCapabilityTest {
               "alg": -257
             }
           ],
-          "challenge": "testChallnege",
+          "challenge": "testChallenge",
           "attestation": "direct",
           "authenticatorSelection": {
             "userVerification": "preferred",
@@ -82,7 +82,7 @@ class IdxWebAuthnCapabilityTest {
         val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
 
         // assert
-        assertThat(result).isEqualTo(activationData)
+        assertThat(result).isEqualTo(JSONObject(activationData).toString())
     }
 
     @Test
@@ -94,7 +94,7 @@ class IdxWebAuthnCapabilityTest {
         val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
 
         // assert
-        assertThat(result).isEqualTo(activationData)
+        assertThat(result).isEqualTo(JSONObject(activationData).toString())
     }
 
     @Test
@@ -124,27 +124,97 @@ class IdxWebAuthnCapabilityTest {
     }
 
     @Test
-    fun `challengeData returns original data when rpId is null`() {
-        // arrange
-        val capability = IdxWebAuthnAuthenticationCapability(challengeData)
+    fun `publicKeyCredentialCreationOptions with rpId overrides existing id`() {
+        val activationData = """
+        {
+          "rp": {
+            "name": "testName",
+            "id": "original.id"
+          }
+        }
+        """.trimIndent()
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
+        val result = capability.publicKeyCredentialCreationOptions(rpId = "new.provided.id").getOrThrow()
 
-        // act
-        val result = capability.challengeData().getOrThrow()
-
-        // assert
-        assertThat(result).isEqualTo(challengeData)
+        val json = JSONObject(result)
+        assertThat(json.getJSONObject("rp").getString("id")).isEqualTo("new.provided.id")
     }
 
     @Test
-    fun `challengeData returns original data when rpId is blank`() {
-        // arrange
-        val capability = IdxWebAuthnAuthenticationCapability(challengeData)
+    fun `publicKeyCredentialCreationOptions without rpId derives id from u2fParams`() {
+        val activationData = """
+        {
+          "rp": {
+            "name": "testName",
+            "u2fParams": {
+              "appid": "https://test.test.com"
+            }
+          }
+        }
+        """.trimIndent()
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
+        val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
 
-        // act
-        val result = capability.challengeData().getOrThrow()
+        val json = JSONObject(result)
+        assertThat(json.getJSONObject("rp").getString("id")).isEqualTo("test.test.com")
+    }
 
-        // assert
-        assertThat(result).isEqualTo(challengeData)
+    @Test
+    fun `publicKeyCredentialCreationOptions without rpId preserves existing id`() {
+        val activationData = """
+        {
+          "rp": {
+            "name": "testName",
+            "id": "existing.id",
+            "u2fParams": {
+              "appid": "https://test.test.com"
+            }
+          }
+        }
+        """.trimIndent()
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
+        val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
+
+        val json = JSONObject(result)
+        // Verifies that the original ID is preserved and not overwritten by the u2fParams logic.
+        assertThat(json.getJSONObject("rp").getString("id")).isEqualTo("existing.id")
+    }
+
+    @Test
+    fun `publicKeyCredentialCreationOptions without rpId and no source for id`() {
+        val activationData = """
+        {
+          "rp": {
+            "name": "testName"
+          }
+        }
+        """.trimIndent()
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
+        val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
+
+        val json = JSONObject(result)
+        // Verifies that the 'id' key is not added if it can't be derived.
+        assertThat(json.getJSONObject("rp").has("id")).isFalse()
+    }
+
+    @Test
+    fun `publicKeyCredentialCreationOptions with invalid appid does not add id`() {
+        val activationData = """
+        {
+          "rp": {
+            "name": "testName",
+            "u2fParams": {
+              "appid": "this is not a valid uri"
+            }
+          }
+        }
+        """.trimIndent()
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
+        val result = capability.publicKeyCredentialCreationOptions().getOrThrow()
+
+        val json = JSONObject(result)
+        // Verifies that a malformed appid doesn't cause a crash or add an invalid id.
+        assertThat(json.getJSONObject("rp").has("id")).isFalse()
     }
 
     @Test
@@ -171,5 +241,109 @@ class IdxWebAuthnCapabilityTest {
 
         // assert
         assertThat(result is JSONException).isTrue()
+    }
+
+    @Test
+    fun `challengeData with rpId overrides existing rpId`() {
+        // arrange
+        val challengeJson = """
+            {
+              "challenge": "randomChallengeString",
+              "rpId": "original.id",
+              "extensions": {
+                "appid": "https://test.test.com"
+              }
+            }
+        """.trimIndent()
+        val capability = IdxWebAuthnAuthenticationCapability(challengeJson)
+
+        // act
+        val result = capability.challengeData(rpId = "new.provided.id").getOrThrow()
+
+        // assert
+        val json = JSONObject(result)
+        assertThat(json.getString("rpId")).isEqualTo("new.provided.id")
+    }
+
+    @Test
+    fun `challengeData without rpId preserves existing rpId`() {
+        // arrange
+        val challengeJson = """
+            {
+              "challenge": "randomChallengeString",
+              "rpId": "existing.id",
+              "extensions": {
+                "appid": "https://test.test.com"
+              }
+            }
+        """.trimIndent()
+        val capability = IdxWebAuthnAuthenticationCapability(challengeJson)
+
+        // act
+        val result = capability.challengeData().getOrThrow()
+
+        // assert
+        val json = JSONObject(result)
+        assertThat(json.getString("rpId")).isEqualTo("existing.id")
+    }
+
+    @Test
+    fun `challengeData without rpId derives id from extensions appid`() {
+        // arrange
+        val challengeJson = """
+            {
+              "challenge": "randomChallengeString",
+              "extensions": {
+                "appid": "https://test.test.com"
+              }
+            }
+        """.trimIndent()
+        val capability = IdxWebAuthnAuthenticationCapability(challengeJson)
+
+        // act
+        val result = capability.challengeData().getOrThrow()
+
+        // assert
+        val json = JSONObject(result)
+        assertThat(json.getString("rpId")).isEqualTo("test.test.com")
+    }
+
+    @Test
+    fun `challengeData with invalid appid does not add rpId`() {
+        // arrange
+        val challengeJson = """
+            {
+              "challenge": "randomChallengeString",
+              "extensions": {
+                "appid": "invalid appid"
+              }
+            }
+        """.trimIndent()
+        val capability = IdxWebAuthnAuthenticationCapability(challengeJson)
+
+        // act
+        val result = capability.challengeData().getOrThrow()
+
+        // assert
+        val json = JSONObject(result)
+        assertThat(json.has("rpId")).isFalse()
+    }
+
+    @Test
+    fun `challengeData without rpId and no source for id does not add rpId`() {
+        // arrange
+        val challengeJson = """
+            {
+              "challenge": "randomChallengeString"
+            }
+        """.trimIndent()
+        val capability = IdxWebAuthnAuthenticationCapability(challengeJson)
+
+        // act
+        val result = capability.challengeData().getOrThrow()
+
+        // assert
+        val json = JSONObject(result)
+        assertThat(json.has("rpId")).isFalse()
     }
 }

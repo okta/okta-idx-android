@@ -24,6 +24,8 @@ import kotlinx.coroutines.delay
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.decodeBase64
 import org.json.JSONObject
+import java.net.URI
+import java.net.URISyntaxException
 
 /**
  * Represents a collection of capabilities.
@@ -198,14 +200,27 @@ class IdxWebAuthnRegistrationCapability internal constructor(
      * @return A [Result] containing the JSON string with the `rp.id` field set to [rpId] if specified, or the original activation data otherwise.
      */
     fun publicKeyCredentialCreationOptions(rpId: String? = null): Result<String> = runCatching {
-        return if (rpId?.isNotBlank() == true) {
-            val json = JSONObject(activationData).apply {
-                getJSONObject("rp").apply {
-                    put("id", rpId)
+        val rootObject = JSONObject(activationData)
+        val rpObject = rootObject.getJSONObject("rp")
+
+        // Determine the final rpId value. If rpId is provided and not blank, use it; otherwise, check for an existing "id" in the rp object.
+        // If neither is available, check for "appid" in "u2fParams" and use its host as the rpId.
+        if (!rpId.isNullOrBlank()) {
+            rpObject.put("id", rpId)
+        } else if (!rpObject.has("id")) {
+            val derivedRpId = rpObject.optJSONObject("u2fParams")?.optString("appid")?.let { appId ->
+                try {
+                    URI(appId).host
+                } catch (_: URISyntaxException) {
+                    null
                 }
-            }.toString()
-            Result.success(json)
-        } else Result.success(activationData)
+            }
+            derivedRpId?.let {
+                rpObject.put("id", it)
+            }
+        }
+
+        rootObject.toString()
     }
 }
 
@@ -225,10 +240,26 @@ class IdxWebAuthnAuthenticationCapability internal constructor(
      * @return A [Result] containing the JSON string with the `rpId` field set to [rpId] if specified, or the original challenge data otherwise.
      */
     fun challengeData(rpId: String? = null): Result<String> = runCatching {
-        return if (rpId?.isNotBlank() == true) {
-            val json = JSONObject(_challengeData).apply { put("rpId", rpId) }.toString()
-            Result.success(json)
-        } else Result.success(_challengeData)
+
+        val rootObject = JSONObject(_challengeData)
+
+        // Determine the final rpId value. If rpId is provided and not blank, use it; otherwise, check for an existing "id" in the rp object.
+        // If neither is available, check for "appid" in "extensions" and use its host as the rpId.
+        if (!rpId.isNullOrBlank()) {
+            rootObject.put("rpId", rpId)
+        } else if (!rootObject.has("rpId")) {
+            val derivedRpId = rootObject.optJSONObject("extensions")?.optString("appid")?.let { appId ->
+                try {
+                    URI(appId).host
+                } catch (_: URISyntaxException) {
+                    null
+                }
+            }
+            derivedRpId?.let {
+                rootObject.put("rpId", it)
+            }
+        }
+        rootObject.toString()
     }
 }
 
