@@ -124,6 +124,19 @@ class IdxWebAuthnCapabilityTest {
     }
 
     @Test
+    fun `publicKeyCredentialCreationOptions with no rp object, returns invalid JSON`() {
+        // arrange
+        val activationData = "{}"
+        val capability = IdxWebAuthnRegistrationCapability(activationData)
+
+        // act
+        val result = capability.publicKeyCredentialCreationOptions("customRpId").exceptionOrNull()
+
+        // assert
+        assertThat(result is JSONException).isTrue()
+    }
+
+    @Test
     fun `publicKeyCredentialCreationOptions with rpId overrides existing id`() {
         val activationData = """
         {
