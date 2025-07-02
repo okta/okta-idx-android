@@ -147,7 +147,7 @@ class IdxWebAuthnCapabilityTest {
         }
         """.trimIndent()
         val capability = IdxWebAuthnRegistrationCapability(activationData)
-        val result = capability.publicKeyCredentialCreationOptions(rpId = "new.provided.id").getOrThrow()
+        val result = capability.publicKeyCredentialCreationOptions(relyingPartyIdentifier = "new.provided.id").getOrThrow()
 
         val json = JSONObject(result)
         assertThat(json.getJSONObject("rp").getString("id")).isEqualTo("new.provided.id")
@@ -271,7 +271,7 @@ class IdxWebAuthnCapabilityTest {
         val capability = IdxWebAuthnAuthenticationCapability(challengeJson)
 
         // act
-        val result = capability.challengeData(rpId = "new.provided.id").getOrThrow()
+        val result = capability.challengeData(relyingPartyIdentifier = "new.provided.id").getOrThrow()
 
         // assert
         val json = JSONObject(result)

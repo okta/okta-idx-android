@@ -230,4 +230,72 @@ class AuthenticatorMiddlewareTest {
         val capability = authenticator.capabilities.get<IdxWebAuthnAuthenticationCapability>()
         assertThat(capability).isNull()
     }
+
+    @Test
+    fun `to webAuthnRegistrationCapability not called when not a security key, expect null returned`() {
+        val contextualData = """
+            {
+              "contextualData": {
+                "challengeData": {
+                  "challenge": "testChallenge",
+                  "userVerification": "preferred",
+                  "extensions": {
+                    "appid": "https://test.test.com"
+                  }
+                }
+              },
+              "type": "password",
+              "key": "password",
+              "id": "testId",
+              "displayName": "Password",
+              "methods": [
+                {
+                  "type": "password"
+                }
+              ]
+            }
+        """.trimIndent()
+        val v1Authenticator = json.decodeFromString<Authenticator>(contextualData)
+
+        // act
+        val authenticator = v1Authenticator.toIdxAuthenticator(json, IdxAuthenticator.State.ENROLLING)
+
+        // assert
+        val capability = authenticator.capabilities.get<IdxWebAuthnRegistrationCapability>()
+        assertThat(capability).isNull()
+    }
+
+    @Test
+    fun `to webAuthnAuthenticationCapability not called when not a security key, expect null returned`() {
+        val contextualData = """
+            {
+              "contextualData": {
+                "challengeData": {
+                  "challenge": "testChallenge",
+                  "userVerification": "preferred",
+                  "extensions": {
+                    "appid": "https://test.test.com"
+                  }
+                }
+              },
+              "type": "password",
+              "key": "password",
+              "id": "testId",
+              "displayName": "Password",
+              "methods": [
+                {
+                  "type": "password"
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val v1Authenticator = json.decodeFromString<Authenticator>(contextualData)
+        // act
+        val authenticator = v1Authenticator.toIdxAuthenticator(json, IdxAuthenticator.State.ENROLLING)
+
+        // assert
+        val capability = authenticator.capabilities.get<IdxWebAuthnAuthenticationCapability>()
+        assertThat(capability).isNull()
+    }
 }

@@ -65,6 +65,7 @@ internal fun Authenticator.toIdxAuthenticator(
     state: IdxAuthenticator.State,
 ): IdxAuthenticator {
     val capabilities = mutableSetOf<IdxAuthenticator.Capability>()
+    val authenticatorType = type.asIdxAuthenticatorType()
 
     recover?.toIdxRemediation(json)?.let { capabilities += IdxRecoverCapability(it) }
     send?.toIdxRemediation(json)?.let { capabilities += IdxSendCapability(it) }
@@ -73,14 +74,16 @@ internal fun Authenticator.toIdxAuthenticator(
     profile?.let { capabilities += IdxProfileCapability(it) }
     contextualData?.toTotpCapability()?.let { capabilities += it }
     contextualData?.toNumberChallengeCapability()?.let { capabilities += it }
-    contextualData?.toWebAuthnRegistrationCapability()?.let { capabilities += it }
-    contextualData?.toWebAuthnAuthenticationCapability()?.let { capabilities += it }
+    if (authenticatorType == IdxAuthenticator.Kind.SECURITY_KEY) {
+        contextualData?.toWebAuthnRegistrationCapability()?.let { capabilities += it }
+        contextualData?.toWebAuthnAuthenticationCapability()?.let { capabilities += it }
+    }
     settings?.toIdxPasswordSettings()?.let { capabilities += it }
 
     return IdxAuthenticator(
         id = id,
         displayName = displayName,
-        type = type.asIdxAuthenticatorType(),
+        type = authenticatorType,
         key = key,
         state = state,
         methods = methods.asIdxAuthenticatorMethods(),

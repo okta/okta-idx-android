@@ -197,17 +197,17 @@ class IdxWebAuthnRegistrationCapability internal constructor(
     /**
      * Returns the public key credential creation options as a JSON string.
      *
-     * @param rpId Optional relying party ID. If provided and not blank, overrides the default `rp.id` in the activation data if present.
-     * @return A [Result] containing the JSON string with the `rp.id` field set to [rpId] if specified, or the original activation data otherwise.
+     * @param relyingPartyIdentifier Optional relying party ID. If provided and not blank, overrides the default `rp.id` in the activation data if present.
+     * @return A [Result] containing the JSON string with the `rp.id` field set to [relyingPartyIdentifier] if specified, or the original activation data otherwise.
      */
-    fun publicKeyCredentialCreationOptions(rpId: String? = null): Result<String> = runCatching {
+    fun publicKeyCredentialCreationOptions(relyingPartyIdentifier: String? = null): Result<String> = runCatching {
         val rootObject = JSONObject(activationData)
         val rpObject = rootObject.getJSONObject("rp")
 
         // Determine the final rpId value. If rpId is provided and not blank, use it; otherwise, check for an existing "id" in the rp object.
         // If neither is available, check for "appid" in "u2fParams" and use its host as the rpId.
-        if (!rpId.isNullOrBlank()) {
-            rpObject.put("id", rpId)
+        if (!relyingPartyIdentifier.isNullOrBlank()) {
+            rpObject.put("id", relyingPartyIdentifier)
         } else if (!rpObject.has("id")) {
             val derivedRpId = rpObject.optJSONObject("u2fParams")?.optString("appid")?.let { appId ->
                 try {
@@ -269,17 +269,17 @@ class IdxWebAuthnAuthenticationCapability internal constructor(
     /**
      * Returns the challengeData.
      *
-     * @param rpId Optional relying party ID. If provided and not blank, overrides the default `rpId` in the challenge data if present.
-     * @return A [Result] containing the JSON string with the `rpId` field set to [rpId] if specified, or the original challenge data otherwise.
+     * @param relyingPartyIdentifier Optional relying party ID. If provided and not blank, overrides the default `rpId` in the challenge data if present.
+     * @return A [Result] containing the JSON string with the `rpId` field set to [relyingPartyIdentifier] if specified, or the original challenge data otherwise.
      */
-    fun challengeData(rpId: String? = null): Result<String> = runCatching {
+    fun challengeData(relyingPartyIdentifier: String? = null): Result<String> = runCatching {
 
         val rootObject = JSONObject(_challengeData)
 
         // Determine the final rpId value. If rpId is provided and not blank, use it; otherwise, check for an existing "id" in the rp object.
         // If neither is available, check for "appid" in "extensions" and use its host as the rpId.
-        if (!rpId.isNullOrBlank()) {
-            rootObject.put("rpId", rpId)
+        if (!relyingPartyIdentifier.isNullOrBlank()) {
+            rootObject.put("rpId", relyingPartyIdentifier)
         } else if (!rootObject.has("rpId")) {
             val derivedRpId = rootObject.optJSONObject("extensions")?.optString("appid")?.let { appId ->
                 try {
