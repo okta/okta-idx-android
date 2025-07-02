@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory
 import com.okta.authfoundation.client.OAuth2ClientResult
 import com.okta.idx.kotlin.client.InteractionCodeFlow
 import com.okta.idx.kotlin.dto.IdxRemediation.Type
+import com.okta.idx.kotlin.dto.v1.convertBase64UrltoBase64
 import kotlinx.coroutines.delay
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.decodeBase64
@@ -222,6 +223,38 @@ class IdxWebAuthnRegistrationCapability internal constructor(
 
         rootObject.toString()
     }
+
+    /**
+     * Remediate with the registration response.
+     *
+     * @param remediation The remediation to update with the registration response. Must have a WebAuthn registration capability.
+     * @param registrationResponseJson JSON string containing the registration response.
+     * @return `Result<IdxRemediation>` with the updated remediation.
+     * @throws IllegalArgumentException if required fields are missing in the registrationResponseJson or IdxRemediation.Form
+     * @throws JSONException if the JSON string is invalid. Or if the registrationResponseJson does not contain the expected fields.
+     */
+    fun withRegistrationResponse(remediation: IdxRemediation, registrationResponseJson: String): Result<IdxRemediation> = runCatching {
+        if (remediation.authenticators.current?.capabilities?.get<IdxWebAuthnRegistrationCapability>() == null) {
+            throw IllegalArgumentException("This remediation does not have a WebAuthn registration capability.")
+        }
+
+        val createCredentialResponseJson = JSONObject(registrationResponseJson)
+        val response = createCredentialResponseJson.getJSONObject("response")
+        val attestationObject = response.getString("attestationObject").takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("The 'attestationObject' field is not present in the create credential response.")
+        val clientDataJSON = response.getString("clientDataJSON").takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("The 'clientDataJSON' field is not present in the create credential response.")
+
+        remediation.form["credentials.attestation"]?.apply {
+            value = attestationObject
+        } ?: throw IllegalArgumentException("The 'credentials.attestation' field is not present in the remediation form.")
+
+        remediation.form["credentials.clientData"]?.apply {
+            value = clientDataJSON
+        } ?: throw IllegalArgumentException("The 'credentials.clientData' field is not present in the remediation form.")
+
+        return Result.success(remediation)
+    }
 }
 
 /**
@@ -260,6 +293,45 @@ class IdxWebAuthnAuthenticationCapability internal constructor(
             }
         }
         rootObject.toString()
+    }
+
+    /**
+     * Remediate with the authentication response.
+     *
+     * @param remediation The remediation to update with the authentication response. Must have a WebAuthn authentication capability.
+     * @param authenticationResponseJson JSON string containing the authentication response.
+     * @return `Result<IdxRemediation>` with the updated remediation.
+     * @throws IllegalArgumentException if required fields are missing in the authenticationResponseJson or IdxRemediation.Form.
+     * @throws IllegalArgumentException if the authenticationResponseJson contains invalid .
+     * @throws JSONException if the JSON string is invalid. Or if the authenticationResponseJson does not contain the expected fields.
+     */
+    fun withAuthenticationResponseJson(remediation: IdxRemediation, authenticationResponseJson: String): Result<IdxRemediation> = runCatching {
+        if (remediation.authenticators.current?.capabilities?.get<IdxWebAuthnAuthenticationCapability>() == null) {
+            throw IllegalArgumentException("This remediation does not have a WebAuthn authentication capability.")
+        }
+
+        val authenticationResponseObject = JSONObject(authenticationResponseJson)
+        val response = authenticationResponseObject.getJSONObject("response")
+        val clientDataJson = response.getString("clientDataJson").takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("The 'clientDataJson' field is not present in the authentication response.")
+        val authenticatorData = response.getString("authenticatorData").takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("The 'authenticatorData' field is not present in the authentication response.")
+        val signature = response.getString("signature").takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("The 'signature' field is not present in the authentication response.")
+
+        remediation.form["credentials.authenticatorData"]?.apply {
+            value = convertBase64UrltoBase64(authenticatorData).getOrThrow()
+        } ?: throw IllegalArgumentException("The 'credentials.authenticatorData' field is not present in the remediation form.")
+
+        remediation.form["credentials.clientData"]?.apply {
+            value = convertBase64UrltoBase64(clientDataJson).getOrThrow()
+        } ?: throw IllegalArgumentException("The 'credentials.clientData' field is not present in the remediation form.")
+
+        remediation.form["credentials.signatureData"]?.apply {
+            value = convertBase64UrltoBase64(signature).getOrThrow()
+        } ?: throw IllegalArgumentException("The 'credentials.signatureData' field is not present in the remediation form.")
+
+        return Result.success(remediation)
     }
 }
 
