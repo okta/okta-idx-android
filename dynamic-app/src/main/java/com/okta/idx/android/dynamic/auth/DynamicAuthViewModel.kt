@@ -483,8 +483,21 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
      */
     private fun proceed(remediation: IdxRemediation, activity: Activity) {
         val idpCapability = remediation.capabilities.get<IdxIdpCapability>()
+        val idxWebAuthnAuthenticationCapability = remediation.capabilities.get<IdxWebAuthnAuthenticationCapability>()
 
-        if (idpCapability != null) {
+        if (idxWebAuthnAuthenticationCapability != null) {
+            // If the remediation has a WebAuthn authentication capability, then this is webauthn autofill.
+            viewModelScope.launch {
+                _state.value = DynamicAuthState.Loading
+                handleWebAuthnAuthentication(remediation, idxWebAuthnAuthenticationCapability, activity).fold(
+                    { handleResponse(it) },
+                    {
+                        Timber.e(it, "Failed to handle WebAuthn Authentication: %s", it.message)
+                        _state.value = DynamicAuthState.Error(it.message ?: "Failed to handle WebAuthn Authentication")
+                    }
+                )
+            }
+        } else if (idpCapability != null) {
             try {
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(idpCapability.redirectUrl.toString()))
                 activity.startActivity(browserIntent)
@@ -496,17 +509,6 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
             cancelPolling()
             viewModelScope.launch {
                 _state.value = DynamicAuthState.Loading
-                val idxWebAuthnAuthenticationCapability = remediation.capabilities.get<IdxWebAuthnAuthenticationCapability>()
-                if (idxWebAuthnAuthenticationCapability != null) {
-                    // If the remediation has a WebAuthn authentication capability, then this is webauthn autofill.
-                    proceedWithWebAuthn(remediation, activity, idxWebAuthnAuthenticationCapability)
-                        .onSuccess {
-                            handleResponse(it)
-                        }.onFailure { error ->
-                            _state.value = DynamicAuthState.Error(error.message ?: "Failed to proceed with WebAuthn")
-                        }
-                    return@launch
-                }
 
                 when (val resumeResult = flow?.proceed(remediation)) {
                     is OAuth2ClientResult.Success -> {
@@ -534,11 +536,11 @@ internal class DynamicAuthViewModel(private val recoveryToken: String) : ViewMod
         }
     }
 
-    private suspend fun proceedWithWebAuthn(remediation: IdxRemediation, activity: Activity, idxWebAuthnAuthenticationCapability: IdxWebAuthnAuthenticationCapability? = null): Result<IdxResponse> {
+    private suspend fun proceedWithWebAuthn(remediation: IdxRemediation, activity: Activity): Result<IdxResponse> {
 
         val webAuthnRegistrationCapability = remediation.authenticators.capability<IdxWebAuthnRegistrationCapability>()
 
-        val webAuthnAuthenticateCapability = remediation.authenticators.capability<IdxWebAuthnAuthenticationCapability>() ?: idxWebAuthnAuthenticationCapability
+        val webAuthnAuthenticateCapability = remediation.authenticators.capability<IdxWebAuthnAuthenticationCapability>()
 
         return if (webAuthnRegistrationCapability != null) {
             cancelPolling()
