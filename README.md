@@ -1,3 +1,27 @@
+# :stop_sign: This Repository is Deprecated :stop_sign:
+
+**This repository (`okta-idx-android`) is no longer actively maintained.**
+
+The source code and functionality from this project have been merged into the `okta-mobile-kotlin` repository, which is designed as a monorepo to represent the unified Okta Client SDK for Kotlin.
+
+## New Location
+
+All future development, issues, and pull requests should be directed to the new monorepo. The code formerly in this repository can now be found here:
+
+:arrow_right: **[https://github.com/okta/okta-mobile-kotlin](https://github.com/okta/okta-mobile-kotlin)**
+
+## Instructions for Developers
+
+### For New Users
+
+Please refer to the **[okta-mobile-kotlin](https://github.com/okta/okta-mobile-kotlin)** repository to get the latest SDK information.
+
+### For Existing Users
+
+If your project currently depends on this standalone `okta-idx-android` repository, no changes are necessary as the published artifact will use the same groudId and artifactId.
+
+---
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Okta IDX Android
