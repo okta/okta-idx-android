@@ -33,7 +33,7 @@ internal fun IdxRemediation.asJsonRequest(client: OAuth2Client): Request {
     val requestBuilder = Request.Builder().url(href)
 
     if (method == "POST") {
-        val jsonBody = client.configuration.json.encodeToString(toJsonContent())
+        val jsonBody = client.configuration.json.encodeToString(JsonElement.serializer(), toJsonContent())
         requestBuilder.post(jsonBody.toRequestBody("application/ion+json; okta-version=1.0.0".toMediaType()))
     }
 
@@ -122,7 +122,7 @@ internal suspend fun introspectRequest(
         .encodedPath("/idp/idx/introspect")
 
     val introspectRequest = IntrospectRequest(flowContext.interactionHandle)
-    val jsonBody = client.configuration.json.encodeToString(introspectRequest)
+    val jsonBody = client.configuration.json.encodeToString(IntrospectRequest.serializer(), introspectRequest)
 
     return Request.Builder()
         .url(urlBuilder.build())
